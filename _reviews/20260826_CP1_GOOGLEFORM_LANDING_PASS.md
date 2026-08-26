@@ -4,6 +4,7 @@
 - 저장소: `03_운영자료/work24-googleform-landing`
 - 원본 donor 수정: 아니오
 - 배포 성격: 공개 TEST STAGING, 실제 접수 없음
+- 배포 URL: `https://bangms1998.github.io/work24-googleform-landing-stg/`
 
 ## 구현
 
@@ -27,6 +28,7 @@
   - `_reviews/screenshots/HOME_768.png` — 768×3328
   - `_reviews/screenshots/HOME_1440.png` — 1440×2485
 - visual read-back: 겹침·잘림·가로 overflow 없음
+- external read-back: Pages `built`, 핵심 6개 경로 HTTP 200, 공개 브라우저 홈·공모안내 렌더링 PASS
 
 ## Google Form 경계
 
@@ -34,7 +36,7 @@
 
 ## 판정
 
-- 랜딩 구현: PASS
+- 랜딩 구현·TEST STAGING: PASS
 - 디자인 placeholder: PASS_FOR_STAGING / 최종 KV 수신 후 REVISE 예정
 - TEST Form 연결: BLOCKED_BY_FORM_INPUT
 - production: BLOCKED_BY_APPROVAL
