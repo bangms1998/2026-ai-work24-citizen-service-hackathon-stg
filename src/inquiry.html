@@ -1,1 +1,35 @@
-1|<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#1157c7"><meta name="description" content="고용24 공모전 테스트 사이트"><title>문의 안내 | 고용24 공모전</title><link rel="stylesheet" href="styles.css"></head><body><a class="skip" href="#main">본문 바로가기</a><div class="test-ribbon"><span>TEST STAGING</span><p>공모요강·일정·시상 내용은 최종 확정 전입니다.</p></div><header class="site-header"><a class="brand" href="index.html" aria-label="고용24 공모전 홈"><img src="assets/work24-logo.svg" alt="고용24"><span class="brand-divider" aria-hidden="true"></span><span class="brand-title">AI 국민참여 해커톤<small>2026 ONLINE HACKATHON</small></span></a><button class="menu" type="button" aria-expanded="false" aria-controls="nav">메뉴</button><nav id="nav" aria-label="주요 메뉴"><a href="guide.html">공모안내</a><a href="notice.html">공지사항</a><a href="faq.html">자주 묻는 질문</a><a href="inquiry.html">문의</a><a href="winners.html">수상작</a></nav></header><main id="main"><section class="sub-hero"><p class="section-kicker">WORK24 CONTEST</p><h1>문의 안내</h1><p>개인 문의 접수 방식은 개인정보 정책 확인 후 연결합니다.</p></section><section class="content"><article class="content-card"><span class="tag">문의처</span><h2>[확인 필요]</h2><p>전화·이메일·전용 문의 Form 중 승인된 채널을 연결할 예정입니다. 테스트 사이트에서는 실제 문의를 받지 않습니다.</p></article></section></main><footer><div><strong>고용24 공모전 테스트 사이트</strong><p>현재 화면의 일정·시상·문의처는 확정 자료 수신 전까지 [미정] 또는 샘플로 표시합니다.</p></div><div class="footer-links"><a href="inquiry.html">문의</a><a href="#">개인정보 처리 안내 [확인 필요]</a></div><p class="copyright">본 테스트 사이트는 기능·디자인 검수용이며 실제 접수를 받지 않습니다.</p></footer><script type="module" src="app.js"></script></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="description" content="고용24 공모전 문의 테스트 폼">
+  <title>문의 | 고용24 공모전</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<div class="test-ribbon"><span>테스트 서버</span><p>실제 개인정보를 입력하지 마세요. 현재 문의는 전송·저장되지 않습니다.</p></div>
+<header class="site-header">
+  <a class="brand" href="index.html" aria-label="고용24 공모전 홈"><img src="assets/work24-logo.svg" alt="고용24"></a>
+  <button class="menu" type="button" aria-label="주요 메뉴 열기" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
+  <nav id="nav" aria-label="주요 메뉴"><a href="guide.html">공모안내</a><a href="notice.html">공지사항</a><a href="faq.html">자주 묻는 질문</a><a href="inquiry.html">문의</a><a href="winners.html">수상작</a></nav>
+</header>
+<main id="main">
+  <section class="sub-hero"><h1>문의</h1><p>공모전 참여와 사이트 이용에 관한 질문을 남겨주세요.</p></section>
+  <section class="content inquiry-layout">
+    <div class="inquiry-intro"><h2>문의 전 확인해 주세요</h2><p>반복되는 질문은 자주 묻는 질문에서 더 빠르게 확인할 수 있습니다.</p><a class="text-link" href="faq.html">자주 묻는 질문 보기 <span aria-hidden="true">→</span></a><div class="test-notice"><strong>현재는 TEST 문의폼입니다.</strong><p>입력 내용은 서버로 전송하거나 저장하지 않습니다. 실제 문의 접수처와 개인정보 처리 문구는 운영 전 확정합니다.</p></div></div>
+    <form id="inquiryForm" class="inquiry-form">
+      <div class="field"><label for="inquiryType">문의 유형</label><select id="inquiryType" name="type" required><option value="">선택해 주세요</option><option value="general">공모전 일반</option><option value="eligibility">참가 자격</option><option value="submission">접수·제출</option><option value="technical">사이트 이용</option></select></div>
+      <div class="field-row"><div class="field"><label for="inquiryName">이름</label><input id="inquiryName" name="name" maxlength="30" autocomplete="name" required></div><div class="field"><label for="inquiryEmail">이메일</label><input id="inquiryEmail" name="email" type="email" maxlength="100" autocomplete="email" required></div></div>
+      <div class="field"><label for="inquiryTitle">문의 제목</label><input id="inquiryTitle" name="title" maxlength="80" required></div>
+      <div class="field"><label for="inquiryMessage">문의 내용</label><textarea id="inquiryMessage" name="message" minlength="10" maxlength="2000" required></textarea><small>10자 이상 2,000자 이하</small></div>
+      <label class="consent-check"><input id="inquiryConsent" type="checkbox" required><span><strong>개인정보 수집·이용 안내에 동의합니다.</strong><br>TEST 화면이며 실제 저장·전송은 하지 않습니다. 운영 문구는 [확인 필요]입니다.</span></label>
+      <button class="primary" type="submit">테스트 문의 제출</button><p id="inquiryStatus" class="form-status" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+</main>
+<footer class="site-footer"><div><a href="https://www.work24.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="고용24 홈페이지 새 창"><img src="assets/work24-logo.svg" alt="고용24"></a><p>고용24 공식 연결 배너 원본을 사용했습니다.<br>공모전 세부 정보는 최종 확정 후 반영합니다.</p></div><div class="footer-links"><a href="guide.html">공모안내</a><a href="faq.html">자주 묻는 질문</a><a href="inquiry.html">문의</a><span>운영기관 [확인 필요]</span></div></footer>
+<script type="module" src="app.js"></script>
+</body></html>
