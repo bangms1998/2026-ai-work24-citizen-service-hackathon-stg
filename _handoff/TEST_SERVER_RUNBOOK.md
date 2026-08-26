@@ -1,7 +1,9 @@
 # 고용24 Google Form형 테스트서버 운영 인계
 
 - 로컬: `http://127.0.0.1:4173`
-- 외부: `https://bangms1998.github.io/2026-ai-work24-citizen-service-hackathon-stg/`
+- 외부: `https://ai-work24-hackathon-2026.pages.dev/`
+- 관리자 TEST: `https://ai-work24-hackathon-2026.pages.dev/admin.html`
+- 제공자: Cloudflare Pages
 - HTTPS: enforced
 - Pages source: `main` branch `/docs`
 - 공개 데이터: 샘플·미정 정보만
