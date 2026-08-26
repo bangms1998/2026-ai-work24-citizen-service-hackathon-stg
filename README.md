@@ -2,8 +2,16 @@
 
 고용24 공모전의 기능·디자인 검수용 L1 정적 랜딩입니다. 실제 접수와 개인정보를 받지 않습니다.
 
-- 공개 테스트 주소: `https://bangms1998.github.io/2026-ai-work24-citizen-service-hackathon-stg/`
+- 공개 테스트 주소: `https://ai-work24-hackathon-2026.pages.dev/`
+- 관리자 TEST 프로토타입: `https://ai-work24-hackathon-2026.pages.dev/admin.html`
 - GitHub 저장소: `https://github.com/bangms1998/2026-ai-work24-citizen-service-hackathon-stg`
+
+## 디자인·자산
+
+- Wanted Gigs Experts는 정보 위계·여백·타이포 리듬만 참고하고 자산·고유 디자인은 복제하지 않았습니다.
+- Wanted Sans 공식 OFL 1.1 variable font를 self-host합니다. 라이선스는 `src/assets/fonts/OFL.txt`에 보존합니다.
+- 고용24 공식 BI 소개 페이지의 108×36 SVG 연결 배너를 원본 비율로 사용합니다. 공모전 주최 표장 승인은 운영 전 별도 확인이 필요합니다.
+- 관리자 화면은 localStorage 기반 TEST UX 프로토타입이며 인증·공유 DB·실제 production publish는 없습니다.
 
 ## 로컬 실행
 

@@ -30,3 +30,26 @@ test('the page includes accessibility and reduced-motion contracts', async () =>
   assert.match(css, /prefers-reduced-motion/);
   assert.match(css, /:focus-visible/);
 });
+
+test('Wanted Sans is self-hosted with its OFL license and Work24 logo provenance', async () => {
+  const css = await read('styles.css');
+  const html = await read('index.html');
+  const license = await read('assets/fonts/OFL.txt');
+  assert.match(css, /Wanted Sans Variable/);
+  assert.match(css, /assets\/fonts\/WantedSansVariable\.woff2/);
+  assert.match(license, /SIL OPEN FONT LICENSE Version 1\.1/);
+  assert.match(html, /assets\/work24-logo\.svg/);
+  assert.match(html, /www\.work24\.go\.kr/);
+});
+
+test('admin prototype exposes honest draft preview publish and rollback controls', async () => {
+  const html = await read('admin.html');
+  const app = await read('admin.js');
+  for (const label of ['임시저장', '미리보기', '변경사항 적용', '변경 취소', '롤백']) {
+    assert.match(html, new RegExp(label));
+  }
+  assert.match(html, /인증 없는 TEST 프로토타입/);
+  assert.match(app, /localStorage/);
+  assert.match(app, /dirty/);
+  assert.match(app, /version/);
+});
