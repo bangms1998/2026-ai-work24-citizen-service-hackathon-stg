@@ -1,0 +1,1 @@
+import { rm,mkdir,cp,readdir } from 'node:fs/promises';const src=new URL('../src/',import.meta.url);const out=new URL('../docs/',import.meta.url);await rm(out,{recursive:true,force:true});await mkdir(out,{recursive:true});for(const f of await readdir(src))await cp(new URL(f,src),new URL(f,out),{recursive:true});console.log('build=PASS output=docs');

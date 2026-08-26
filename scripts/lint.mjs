@@ -1,0 +1,1 @@
+import { readdir,readFile } from 'node:fs/promises';const dir=new URL('../src/',import.meta.url);let bad=0;for(const f of await readdir(dir)){const s=await readFile(new URL(f,dir),'utf8');if(/TODO|FIXME|<script(?! type="module")/.test(s)){console.error('lint issue',f);bad++}}if(bad)process.exit(1);console.log('lint=PASS');

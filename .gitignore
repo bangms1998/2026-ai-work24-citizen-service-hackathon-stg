@@ -1,0 +1,6 @@
+node_modules/
+playwright-report/
+test-results/
+_reviews/screenshots/*.png
+.env*
+.DS_Store
