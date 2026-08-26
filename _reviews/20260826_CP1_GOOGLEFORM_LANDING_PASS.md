@@ -4,7 +4,7 @@
 - 저장소: `03_운영자료/work24-googleform-landing`
 - 원본 donor 수정: 아니오
 - 배포 성격: 공개 TEST STAGING, 실제 접수 없음
-- 배포 URL: `https://bangms1998.github.io/work24-googleform-landing-stg/`
+- 배포 URL: `https://bangms1998.github.io/2026-ai-work24-citizen-service-hackathon-stg/`
 
 ## 구현
 

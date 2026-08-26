@@ -2,8 +2,8 @@
 
 고용24 공모전의 기능·디자인 검수용 L1 정적 랜딩입니다. 실제 접수와 개인정보를 받지 않습니다.
 
-- 공개 테스트 주소: `https://bangms1998.github.io/work24-googleform-landing-stg/`
-- GitHub 저장소: `https://github.com/bangms1998/work24-googleform-landing-stg`
+- 공개 테스트 주소: `https://bangms1998.github.io/2026-ai-work24-citizen-service-hackathon-stg/`
+- GitHub 저장소: `https://github.com/bangms1998/2026-ai-work24-citizen-service-hackathon-stg`
 
 ## 로컬 실행
 
