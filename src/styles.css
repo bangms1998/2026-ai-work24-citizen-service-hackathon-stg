@@ -198,3 +198,19 @@ body.menu-open{overflow:hidden}
 .schedule-note{margin-top:28px}.info-duo{padding-top:0}
 @media(max-width:800px){.schedule-section{margin-bottom:56px;border-radius:22px}.calendar-tabs{width:100%}.calendar-tab{flex:1;justify-content:center;min-width:0;padding-inline:10px}.calendar-month{padding:20px 14px;border-radius:18px}.calendar-month header{align-items:flex-start;flex-direction:column;gap:14px;margin-bottom:18px;padding:0 4px 18px}.calendar-month header h3{font-size:25px}.calendar-day{min-height:58px;padding:5px 3px}.calendar-day>b{width:25px;height:25px;font-size:11px}.calendar-event-range{bottom:7px;height:18px;padding:2px 4px;font-size:8px;line-height:14px}.calendar-day.range-start .calendar-event-range{left:3px}.calendar-day.range-end .calendar-event-range{right:3px}.schedule-events{grid-template-columns:1fr}.schedule-event{min-height:92px}.schedule-event.is-current{padding-inline:14px}.schedule-note{margin-top:22px}}
 
+/* 2026-08-27 v11 — open schedule canvas, no nested section/card surfaces */
+.schedule-section{padding-top:176px!important;margin-bottom:112px;border-radius:0!important;background:transparent!important;color:#111112;box-shadow:none!important}
+.schedule-heading{margin-bottom:64px}
+.calendar-tabs{width:100%;gap:32px;margin-bottom:0;padding:0;border:0;border-bottom:1px solid #d7d7d3;border-radius:0;background:transparent}
+.calendar-tab{justify-content:flex-start;min-width:0;min-height:48px;margin-bottom:-1px;padding:0 2px;border:0;border-bottom:2px solid transparent;border-radius:0;color:#818185}
+.calendar-tab span{display:none}.calendar-tab b{font-size:15px}
+.calendar-tab[aria-selected="true"]{border-bottom-color:#111112;background:transparent;color:#111112;box-shadow:none}
+.calendar-month{padding:38px 0 0;border:0;border-radius:0;background:transparent;box-shadow:none}
+.calendar-month header{padding-inline:2px}
+.calendar-days{border-top:1px solid #e2e2de}
+.schedule-event.is-current{padding-inline:4px;border-top:2px solid #111112;border-radius:0;background:transparent;color:#111112;box-shadow:none}
+.schedule-event.is-current .event-index{background:#111112;color:#fff}
+.schedule-event.is-current .schedule-state,.schedule-event.is-current time,.schedule-event.is-current>b{color:#57575b}
+.schedule-event.is-current .schedule-state:before{background:#111112}
+@media(max-width:800px){.schedule-section{padding-top:112px!important;margin-bottom:72px;border-radius:0!important}.schedule-heading{margin-bottom:44px}.calendar-tabs{gap:0}.calendar-tab{justify-content:center}.calendar-month{padding:30px 0 0;border-radius:0}.calendar-month header{padding-inline:2px}.schedule-layout{gap:44px}.to-top{display:none!important}}
+

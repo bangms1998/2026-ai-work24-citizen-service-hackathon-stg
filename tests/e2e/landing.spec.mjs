@@ -321,6 +321,37 @@ test('focused month calendar uses tabs, range bars and separates the next sectio
     return Math.round(next.getBoundingClientRect().top - section.getBoundingClientRect().bottom);
   });
   expect(gap).toBeGreaterThanOrEqual(80);
+  const surfaces = await page.locator('.schedule-section').evaluate((section) => {
+    const previous = document.querySelector('.value-section');
+    const heading = section.querySelector('.schedule-heading');
+    const tabs = section.querySelector('.calendar-tabs');
+    const month = section.querySelector('.calendar-month:not([hidden])');
+    const sectionStyle = getComputedStyle(section);
+    return {
+      background: sectionStyle.backgroundColor,
+      radius: sectionStyle.borderRadius,
+      shadow: sectionStyle.boxShadow,
+      tabsBackground: getComputedStyle(tabs).backgroundColor,
+      tabsRadius: getComputedStyle(tabs).borderRadius,
+      calendarShadow: getComputedStyle(month).boxShadow,
+      calendarRadius: getComputedStyle(month).borderRadius,
+      currentBackground: getComputedStyle(section.querySelector('.schedule-event.is-current')).backgroundColor,
+      currentRadius: getComputedStyle(section.querySelector('.schedule-event.is-current')).borderRadius,
+      currentShadow: getComputedStyle(section.querySelector('.schedule-event.is-current')).boxShadow,
+      headingGap: Math.round(heading.getBoundingClientRect().top - previous.getBoundingClientRect().bottom),
+    };
+  });
+  expect(surfaces.background).toBe('rgba(0, 0, 0, 0)');
+  expect(surfaces.radius).toBe('0px');
+  expect(surfaces.shadow).toBe('none');
+  expect(surfaces.tabsBackground).toBe('rgba(0, 0, 0, 0)');
+  expect(surfaces.tabsRadius).toBe('0px');
+  expect(surfaces.calendarShadow).toBe('none');
+  expect(surfaces.calendarRadius).toBe('0px');
+  expect(surfaces.currentBackground).toBe('rgba(0, 0, 0, 0)');
+  expect(surfaces.currentRadius).toBe('0px');
+  expect(surfaces.currentShadow).toBe('none');
+  expect(surfaces.headingGap).toBeGreaterThanOrEqual(150);
 });
 
 test('monthly calendar highlights the real KST day and its active schedule on mobile', async ({ page }) => {
@@ -342,6 +373,9 @@ test('monthly calendar highlights the real KST day and its active schedule on mo
   await expect(today).toHaveAttribute('aria-current', 'date');
   await expect(page.locator('.schedule-event[data-event="apply"]')).toHaveClass(/is-current/);
   await expect(page.locator('.schedule-event[data-event="apply"] .schedule-state')).toHaveText('진행 중');
+  await page.locator('.schedule-section').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(120);
+  await expect(page.locator('.to-top')).toBeHidden();
   await expect(page.getByRole('link', { name: '공모요강' }).first()).toBeVisible();
   await expect(page.getByRole('link', { name: '참고자료 다운로드' })).toHaveAttribute('aria-disabled', 'true');
   await expect(page.getByRole('link', { name: '참고자료 다운로드' })).not.toHaveAttribute('href', /guide\.html/);
