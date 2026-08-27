@@ -2,12 +2,21 @@ import { siteConfig } from './site-config.js';
 
 const menu = document.querySelector('.menu');
 const nav = document.querySelector('#nav');
-menu?.addEventListener('click', () => {
-  const open = menu.getAttribute('aria-expanded') === 'true';
-  menu.setAttribute('aria-expanded', String(!open));
-  menu.setAttribute('aria-label', open ? '주요 메뉴 열기' : '주요 메뉴 닫기');
-  nav?.classList.toggle('open', !open);
-});
+const siteHeader = document.querySelector('.site-header');
+function setMenu(open,{focus=false}={}){
+  if(!menu||!nav)return;
+  menu.setAttribute('aria-expanded',String(open));
+  menu.setAttribute('aria-label',open?'주요 메뉴 닫기':'주요 메뉴 열기');
+  nav.classList.toggle('open',open);
+  menu.classList.toggle('is-open',open);
+  document.body.classList.toggle('menu-open',open);
+  if(focus)menu.focus();
+}
+menu?.addEventListener('click',()=>setMenu(menu.getAttribute('aria-expanded')!=='true'));
+nav?.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>setMenu(false)));
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu?.getAttribute('aria-expanded')==='true')setMenu(false,{focus:true})});
+document.addEventListener('pointerdown',event=>{if(menu?.getAttribute('aria-expanded')==='true'&&!siteHeader?.contains(event.target))setMenu(false)});
+window.addEventListener('resize',()=>{if(window.innerWidth>980)setMenu(false)});
 
 const button = document.querySelector('#applyButton');
 const status = document.querySelector('#applyStatus');
@@ -30,7 +39,6 @@ inquiryForm?.addEventListener('submit', (event) => {
   inquiryForm.reset();
 });
 
-const siteHeader = document.querySelector('.site-header');
 const toTop = document.querySelector('.to-top');
 const updateScrollUi = () => {
   const scrolled = window.scrollY > 72;

@@ -173,7 +173,7 @@ test('admin workspace exposes every operations area, preserves dirty-state safet
   await page.getByLabel('Hero 제목').fill('고용24 AI 서비스 아이디어 수정안');
   await expect(apply).toBeEnabled();
   await nav.getByRole('button', { name: '문의 관리' }).click();
-  await expect(page.getByRole('button', { name: 'CSV 내려받기' })).toBeVisible();
+  await expect(page.locator('#inquiryList')).toContainText('문의 내용');
 });
 
 for (const width of [390, 768, 1440]) test(`editorial admin has no horizontal overflow at ${width}`, async ({ page }) => {
@@ -181,4 +181,85 @@ for (const width of [390, 768, 1440]) test(`editorial admin has no horizontal ov
   await page.goto('/admin.html');
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
+});
+
+test('notice manager uploads a fitted image and edits image-top and image-bottom copy', async ({ page }) => {
+  await page.goto('/admin.html');
+  await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: '공지사항' }).click();
+  await page.locator('#noticeTitle').fill('이미지 공지 테스트');
+  await page.getByLabel('이미지 위 내용').fill('상단 내용');
+  await page.getByLabel('이미지 아래 내용').fill('하단 내용');
+  await page.locator('#noticeImageFile').setInputFiles('src/assets/work24-logo-transparent.png');
+  await expect(page.locator('#noticeImagePreview')).toBeVisible();
+  expect(await page.locator('#noticeImagePreview').evaluate((el) => getComputedStyle(el).objectFit)).toBe('cover');
+  await page.getByRole('button', { name: '공지 추가' }).click();
+  const row = page.locator('#noticeAdminList li').filter({ hasText: '이미지 공지 테스트' });
+  await row.getByRole('button', { name: '수정' }).click();
+  await expect(page.getByLabel('이미지 위 내용')).toHaveValue('상단 내용');
+  await page.locator('#noticeTitle').fill('이미지 공지 수정됨');
+  await page.getByRole('button', { name: '공지 수정' }).click();
+  await expect(page.locator('#noticeAdminList')).toContainText('이미지 공지 수정됨');
+});
+
+test('FAQ manager supports editing an existing record', async ({ page }) => {
+  await page.goto('/admin.html');
+  await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: 'FAQ' }).click();
+  await page.locator('#faqAdminList li').first().getByRole('button', { name: '수정' }).click();
+  await page.getByLabel('질문').fill('수정된 FAQ 질문');
+  await page.getByRole('button', { name: 'FAQ 수정' }).click();
+  await expect(page.locator('#faqAdminList')).toContainText('수정된 FAQ 질문');
+});
+
+test('popup manager accepts drop image in a fitted 3 by 4 frame and removes it', async ({ page }) => {
+  await page.goto('/admin.html');
+  await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: '팝업' }).click();
+  await page.locator('#popupDropzone').evaluate(async (el) => {
+    const blob = await fetch('assets/work24-logo-transparent.png').then((response) => response.blob());
+    const transfer = new DataTransfer();
+    transfer.items.add(new File([blob], 'popup.png', { type: 'image/png' }));
+    el.dispatchEvent(new DragEvent('drop', { bubbles: true, dataTransfer: transfer }));
+  });
+  await expect(page.locator('#popupImagePreview')).toBeVisible();
+  await expect(page.locator('#popupMediaStatus')).toContainText('업로드 완료');
+  expect(await page.locator('.popup-preview-frame').evaluate((el) => getComputedStyle(el).aspectRatio)).toBe('3 / 4');
+  await page.getByRole('button', { name: '팝업 이미지 삭제' }).click();
+  await expect(page.locator('#popupImagePreview')).toBeHidden();
+});
+
+test('site content is separated by five page tabs', async ({ page }) => {
+  await page.goto('/admin.html');
+  await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: '사이트 콘텐츠' }).click();
+  const tabs = page.getByRole('tablist', { name: '페이지별 콘텐츠' });
+  await expect(tabs.getByRole('tab')).toHaveCount(5);
+  await tabs.getByRole('tab', { name: '공모안내' }).click();
+  await expect(page.getByLabel('공모안내 제목')).toBeVisible();
+  await tabs.getByRole('tab', { name: '문의 페이지' }).click();
+  await expect(page.getByLabel('문의 안내문')).toBeVisible();
+});
+
+test('inquiry manager shows content without reply state or reply controls', async ({ page }) => {
+  await page.goto('/admin.html');
+  await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: '문의 관리' }).click();
+  await expect(page.locator('#inquiryList')).toContainText('문의 내용');
+  await expect(page.locator('#inquiryList')).not.toContainText('미답변');
+  await expect(page.getByRole('button', { name: /답변/ })).toHaveCount(0);
+});
+
+test('mobile menu is a compact accessible drawer and closes with Escape', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const toggle = page.locator('.menu');
+  await expect(toggle).toHaveAttribute('aria-label', '주요 메뉴 열기');
+  await toggle.click();
+  const nav = page.locator('#nav');
+  await expect(nav).toHaveAttribute('aria-label', '주요 메뉴');
+  await expect(nav).toHaveClass(/open/);
+  await expect(toggle).toHaveAttribute('aria-label', '주요 메뉴 닫기');
+  const box = await nav.boundingBox();
+  expect(box.height).toBeLessThan(420);
+  expect(box.width).toBeLessThanOrEqual(370);
+  expect(await page.evaluate(() => getComputedStyle(document.body).overflow)).toBe('hidden');
+  await page.keyboard.press('Escape');
+  await expect(nav).not.toHaveClass(/open/);
+  await expect(toggle).toBeFocused();
 });

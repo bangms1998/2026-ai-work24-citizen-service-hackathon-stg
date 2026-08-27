@@ -70,13 +70,27 @@ test('admin prototype preserves operations while sharing the landing editorial d
   assert.match(html, /assets\/work24-logo-white\.png/);
   assert.match(html, /인증 없는 TEST 프로토타입/);
   for (const label of ['관리자 홈', '공지사항', 'FAQ', '팝업', '사이트 콘텐츠', '문의 관리']) assert.match(html, new RegExp(label));
-  for (const action of ['임시저장', '전체 사이트 미리보기', '변경사항 적용', '변경 취소', 'CSV 내려받기']) assert.match(html, new RegExp(action));
+  for (const action of ['임시저장', '전체 사이트 미리보기', '변경사항 적용', '변경 취소']) assert.match(html, new RegExp(action));
   assert.match(css, /admin editorial refinement/);
+  assert.match(html, /class="admin-content-tabs"/);
+  for (const label of ['메인 페이지', '공모안내', '일정·시상', '문의 페이지', '수상작']) assert.match(html, new RegExp(label));
+  assert.doesNotMatch(html, /<i>0[1-9]<\/i>/);
+  assert.match(html, /id="noticeBodyBefore"/);
+  assert.match(html, /id="noticeBodyAfter"/);
+  assert.match(html, /id="noticeDropzone"/);
+  assert.match(html, /id="popupDropzone"/);
+  assert.match(html, /id="popupImagePreview"/);
+  assert.match(js, /문의 내용/);
+  assert.doesNotMatch(js, /미답변|이메일 답변/);
+  assert.match(css, /\.admin-media-dropzone\{/);
+  assert.match(css, /object-fit:cover/);
+  assert.match(css, /\.admin-destinations button\{grid-template-columns:1fr auto/);
   assert.match(css, /\.admin-editorial\{background:#f5f5f2;color:#171719/);
   assert.match(css, /\.admin-editorial \.admin-header\{[^}]*background:#111112/);
   assert.match(js, /localStorage/);
   assert.match(js, /rollback/);
-  assert.match(js, /downloadInquiryCsv/);
+  assert.match(js, /function renderInquiries/);
+  assert.doesNotMatch(html, /CSV 내려받기|답변 상태/);
 });
 
 test('public navigation, top control and notice table follow the revised information architecture', async () => {
