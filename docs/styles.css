@@ -81,3 +81,37 @@ body.menu-open{overflow:hidden}
 @media(max-width:980px){.menu.is-open span:first-child{transform:translateY(7px) rotate(45deg)!important}.menu.is-open span:nth-of-type(2){opacity:0!important}.menu.is-open span:last-child{transform:translateY(-7px) rotate(-45deg)!important}}
 @media(max-width:700px){.admin-content-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}.admin-content-tabs button{min-width:0;padding:9px 6px;font-size:11px}.admin-editorial .admin-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}.admin-editorial .admin-nav button{min-width:0;padding:8px 4px;font-size:11px}}
 
+/* 2026-08-27 record spacing and control centering correction */
+.admin-editorial .admin-record-list{display:grid;gap:12px;margin:0;padding:0}
+.admin-editorial .admin-record-list li{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:18px!important;padding:18px!important;border:1px solid #dddeda!important;border-radius:13px;background:#fff}
+.admin-editorial .admin-record-list li>div:first-child{display:grid;gap:6px;min-width:0}
+.admin-editorial #noticeAdminList li>div:first-child>span{display:inline-flex!important;align-items:center;width:max-content!important;max-width:100%;min-height:24px;padding:3px 9px;border:1px solid #cfcfcd;border-radius:999px;background:#f4f4f1;color:#333337;font-size:11px;font-weight:750;line-height:1}
+.admin-editorial .admin-record-list strong{display:block;line-height:1.45}
+.admin-editorial .admin-record-list small{display:block;color:#69696e;line-height:1.55}
+.admin-editorial .admin-record-actions{display:flex!important;width:auto!important;gap:7px!important}
+.admin-editorial .admin-record-actions button{min-width:58px;min-height:38px!important;padding:7px 12px!important;border-radius:10px!important}
+.admin-editorial .admin-kpis{gap:16px!important}
+.admin-editorial .admin-readiness{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px!important}
+.admin-editorial .admin-readiness span{display:flex!important;min-width:0;min-height:94px;padding:16px!important;flex-direction:column;align-items:flex-start;justify-content:space-between;border:1px solid rgba(255,255,255,.12)!important;border-radius:12px;background:rgba(255,255,255,.055)}
+@media(max-width:700px){
+  .admin-editorial .admin-record-list{gap:12px!important}
+  .admin-editorial .admin-record-list li{grid-template-columns:minmax(0,1fr) 62px!important;align-items:start!important;gap:12px!important;padding:17px!important}
+  .admin-editorial .admin-record-actions{display:grid!important;grid-template-columns:1fr!important;width:62px!important;gap:7px!important}
+  .admin-editorial .admin-record-actions button{width:62px!important;min-width:0!important;min-height:38px!important;padding:6px!important}
+  .admin-editorial .admin-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+  .admin-editorial .admin-kpis article{min-height:132px!important;padding:17px!important;border:1px solid #d9d9d6!important;border-radius:13px;background:#fff}
+  .admin-editorial .admin-traffic{padding:22px 16px!important}
+  .admin-editorial .admin-readiness{gap:10px!important}
+  .admin-editorial .admin-readiness span{min-height:86px;padding:13px 10px!important}
+}
+@media(max-width:980px){
+  .site-header .menu{position:relative!important;display:block!important;width:44px!important;height:44px!important;padding:0!important;line-height:0!important}
+  .site-header .menu span{position:absolute!important;left:50%!important;top:50%!important;display:block!important;width:18px!important;height:2px!important;margin:0!important;transform-origin:center!important}
+  .site-header .menu span:first-child{transform:translate(-50%,-7px)!important}
+  .site-header .menu span:nth-of-type(2){transform:translate(-50%,-50%)!important}
+  .site-header .menu span:last-child{transform:translate(-50%,5px)!important}
+  .site-header .menu.is-open span:first-child{transform:translate(-50%,-50%) rotate(45deg)!important}
+  .site-header .menu.is-open span:nth-of-type(2){transform:translate(-50%,-50%)!important;opacity:0!important}
+  .site-header .menu.is-open span:last-child{transform:translate(-50%,-50%) rotate(-45deg)!important}
+}
+

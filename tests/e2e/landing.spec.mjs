@@ -263,3 +263,35 @@ test('mobile menu is a compact accessible drawer and closes with Escape', async 
   await expect(nav).not.toHaveClass(/open/);
   await expect(toggle).toBeFocused();
 });
+
+test('mobile admin records and readiness cards keep deliberate internal spacing', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  for (const route of ['notices', 'faq']) {
+    await page.goto(`/admin.html#${route}`);
+    const id = route === 'notices' ? '#noticeAdminList' : '#faqAdminList';
+    const row = page.locator(`${id} li`).first();
+    const metrics = await row.evaluate((el) => {
+      const style = getComputedStyle(el);
+      const action = el.querySelector('.admin-record-actions').getBoundingClientRect();
+      const badge = el.querySelector('span')?.getBoundingClientRect();
+      return { paddingLeft: parseFloat(style.paddingLeft), actionWidth: action.width, badgeWidth: badge?.width ?? 0 };
+    });
+    expect(metrics.paddingLeft).toBeGreaterThanOrEqual(16);
+    expect(metrics.actionWidth).toBeLessThanOrEqual(72);
+    if (route === 'notices') expect(metrics.badgeWidth).toBeLessThan(60);
+  }
+  await page.goto('/admin.html');
+  const readinessGap = await page.locator('.admin-readiness').evaluate((el) => parseFloat(getComputedStyle(el).gap));
+  expect(readinessGap).toBeGreaterThanOrEqual(10);
+});
+
+test('hamburger lines are geometrically centered in the circular control', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const metric = await page.locator('.menu').evaluate((button) => {
+    const b = button.getBoundingClientRect();
+    const lines = [...button.querySelectorAll('span')].map((el) => el.getBoundingClientRect());
+    return { buttonCenter: b.top + b.height / 2, lineGroupCenter: (lines[0].top + lines[0].height / 2 + lines[2].top + lines[2].height / 2) / 2 };
+  });
+  expect(Math.abs(metric.buttonCenter - metric.lineGroupCenter)).toBeLessThanOrEqual(1);
+});
