@@ -296,6 +296,33 @@ test('hamburger lines are geometrically centered in the circular control', async
   expect(Math.abs(metric.buttonCenter - metric.lineGroupCenter)).toBeLessThanOrEqual(1);
 });
 
+test('focused month calendar uses tabs, range bars and separates the next section', async ({ page }) => {
+  await page.addInitScript(() => {
+    const NativeDate = Date;
+    class MockDate extends NativeDate {
+      constructor(...args) { super(...(args.length ? args : ['2026-09-10T12:00:00+09:00'])); }
+      static now() { return new NativeDate('2026-09-10T12:00:00+09:00').getTime(); }
+    }
+    window.Date = MockDate;
+  });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const tabs = page.getByRole('tablist', { name: '공모일정 월 선택' });
+  await expect(tabs.getByRole('tab')).toHaveCount(3);
+  await expect(tabs.getByRole('tab', { name: '9월' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tabpanel', { name: '9월' })).toBeVisible();
+  await expect(page.locator('.calendar-month:visible')).toHaveCount(1);
+  await expect(page.getByRole('tabpanel', { name: '9월' }).locator('.calendar-event-range')).not.toHaveCount(0);
+  await tabs.getByRole('tab', { name: '10월' }).click();
+  await expect(tabs.getByRole('tab', { name: '10월' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tabpanel', { name: '10월' })).toBeVisible();
+  const gap = await page.locator('.schedule-section').evaluate((section) => {
+    const next = document.querySelector('.info-duo');
+    return Math.round(next.getBoundingClientRect().top - section.getBoundingClientRect().bottom);
+  });
+  expect(gap).toBeGreaterThanOrEqual(80);
+});
+
 test('monthly calendar highlights the real KST day and its active schedule on mobile', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
@@ -327,4 +354,6 @@ test('monthly calendar highlights the real KST day and its active schedule on mo
   expect(new Set(overview.rowLefts.map(Math.round)).size).toBe(1);
   expect(Math.abs(overview.buttonLeft - overview.rowLefts[0])).toBeLessThanOrEqual(1);
   expect(overview.overflow).toBeLessThanOrEqual(1);
+  const sectionGap = await page.locator('.schedule-section').evaluate((section) => Math.round(document.querySelector('.info-duo').getBoundingClientRect().top - section.getBoundingClientRect().bottom));
+  expect(sectionGap).toBeGreaterThanOrEqual(48);
 });

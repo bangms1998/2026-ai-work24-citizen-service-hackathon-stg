@@ -74,30 +74,95 @@ if (scheduleEvents.length && scheduleCalendar) {
   }
 
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const fragment = document.createDocumentFragment();
-  for (const monthIndex of [8, 9, 10]) {
+  const eventNames = new Map(events.map((event) => [event.id, event.element.querySelector('h3').textContent]));
+  const shortEventNames = new Map([
+    ['apply', '접수'],
+    ['review', '1차 심사'],
+    ['result', '결과 발표'],
+    ['develop', '서비스 개발'],
+    ['verify', '기능 심사'],
+    ['ceremony', '시상식'],
+  ]);
+  const months = [8, 9, 10];
+  const calendarTabs = document.createElement('div');
+  calendarTabs.className = 'calendar-tabs';
+  calendarTabs.setAttribute('role', 'tablist');
+  calendarTabs.setAttribute('aria-label', '공모일정 월 선택');
+  const calendarPanels = document.createElement('div');
+  calendarPanels.className = 'calendar-panels';
+
+  const todayMonth = Number(todayKey.slice(5, 7));
+  const initialMonth = todayMonth >= 9 && todayMonth <= 11
+    ? todayMonth
+    : Number((nextEvent?.start || (todayKey < '2026-09-01' ? '2026-09-01' : '2026-11-01')).slice(5, 7));
+
+  const selectMonth = (monthNumber, focusTab = false) => {
+    calendarTabs.querySelectorAll('[role="tab"]').forEach((tab) => {
+      const selected = Number(tab.dataset.month) === monthNumber;
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      if (selected && focusTab) tab.focus();
+    });
+    calendarPanels.querySelectorAll('[role="tabpanel"]').forEach((panel) => {
+      panel.hidden = Number(panel.dataset.month) !== monthNumber;
+    });
+  };
+
+  months.forEach((monthIndex) => {
+    const monthNumber = monthIndex + 1;
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'calendar-tab';
+    tab.id = `calendar-tab-${monthNumber}`;
+    tab.dataset.month = String(monthNumber);
+    tab.setAttribute('role', 'tab');
+    tab.setAttribute('aria-controls', `calendar-panel-${monthNumber}`);
+    tab.innerHTML = `<span>2026</span><b>${monthNumber}월</b>`;
+    tab.addEventListener('click', () => selectMonth(monthNumber));
+    tab.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const current = months.indexOf(monthIndex);
+      const target = event.key === 'Home' ? 0 : event.key === 'End' ? months.length - 1 : (current + (event.key === 'ArrowRight' ? 1 : -1) + months.length) % months.length;
+      selectMonth(months[target] + 1, true);
+    });
+    calendarTabs.append(tab);
+
     const firstDay = new Date(Date.UTC(2026, monthIndex, 1)).getUTCDay();
     const daysInMonth = new Date(Date.UTC(2026, monthIndex + 1, 0)).getUTCDate();
     const cellCount = Math.ceil((firstDay + daysInMonth) / 7) * 7;
     const month = document.createElement('section');
     month.className = 'calendar-month';
-    month.setAttribute('aria-labelledby', `calendar-month-${monthIndex + 1}`);
-    month.innerHTML = `<header><span>2026</span><h3 id="calendar-month-${monthIndex + 1}">${monthIndex + 1}월</h3></header><div class="calendar-weekdays">${weekdays.map((day) => `<span>${day}</span>`).join('')}</div><div class="calendar-days"></div>`;
+    month.id = `calendar-panel-${monthNumber}`;
+    month.dataset.month = String(monthNumber);
+    month.setAttribute('role', 'tabpanel');
+    month.setAttribute('aria-labelledby', tab.id);
+    month.innerHTML = `<header><div><span>2026년</span><h3>${monthNumber}월 공모일정</h3></div><p><i></i> 일정 구간 <i class="today-key"></i> 오늘</p></header><div class="calendar-weekdays">${weekdays.map((day) => `<span>${day}</span>`).join('')}</div><div class="calendar-days"></div>`;
     const grid = month.querySelector('.calendar-days');
     for (let index = 0; index < cellCount; index += 1) {
       const day = index - firstDay + 1;
       const cell = document.createElement(day > 0 && day <= daysInMonth ? 'time' : 'span');
       cell.className = 'calendar-day';
       if (day > 0 && day <= daysInMonth) {
-        const dateKey = `2026-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dateKey = `2026-${String(monthNumber).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const matched = events.find((event) => dateKey >= event.start && dateKey <= event.end);
+        const weekday = index % 7;
         cell.dateTime = dateKey;
         cell.dataset.date = dateKey;
         cell.innerHTML = `<b>${day}</b>`;
         if (matched) {
+          const rangeStarts = dateKey === matched.start || day === 1 || weekday === 0;
+          const rangeEnds = dateKey === matched.end || day === daysInMonth || weekday === 6;
           cell.classList.add('has-event', `event-${matched.id}`);
+          if (rangeStarts) cell.classList.add('range-start');
+          if (rangeEnds) cell.classList.add('range-end');
           cell.dataset.event = matched.id;
-          cell.setAttribute('aria-label', `${monthIndex + 1}월 ${day}일, ${matched.element.querySelector('h3').textContent}`);
+          cell.setAttribute('aria-label', `${monthNumber}월 ${day}일, ${eventNames.get(matched.id)}`);
+          const range = document.createElement('span');
+          range.className = 'calendar-event-range';
+          range.setAttribute('aria-hidden', 'true');
+          if (rangeStarts) range.textContent = shortEventNames.get(matched.id) || eventNames.get(matched.id);
+          cell.append(range);
           if (matched.element.classList.contains('is-current')) cell.classList.add('is-current-event');
         }
         if (dateKey === todayKey) {
@@ -110,9 +175,11 @@ if (scheduleEvents.length && scheduleCalendar) {
       }
       grid.append(cell);
     }
-    fragment.append(month);
-  }
-  scheduleCalendar.append(fragment);
+    calendarPanels.append(month);
+  });
+
+  scheduleCalendar.append(calendarTabs, calendarPanels);
+  selectMonth(Math.min(11, Math.max(9, initialMonth)));
 }
 
 const inquiryForm = document.querySelector('#inquiryForm');
