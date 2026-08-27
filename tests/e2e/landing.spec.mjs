@@ -49,7 +49,7 @@ test('white hero logo switches to the dark logo when the header becomes solid', 
 test('overview uses one poster and only the contest name and subject', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.overview-brief > .overview-poster')).toHaveCount(1);
-  await expect(page.locator('.overview-summary dl > div')).toHaveCount(2);
+  await expect(page.locator('.overview-summary .overview-fact')).toHaveCount(2);
   await expect(page.locator('.overview-section .recommend-card')).toHaveCount(0);
 });
 
@@ -231,8 +231,8 @@ test('site content is separated by five page tabs', async ({ page }) => {
   await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: '사이트 콘텐츠' }).click();
   const tabs = page.getByRole('tablist', { name: '페이지별 콘텐츠' });
   await expect(tabs.getByRole('tab')).toHaveCount(5);
-  await tabs.getByRole('tab', { name: '공모안내' }).click();
-  await expect(page.getByLabel('공모안내 제목')).toBeVisible();
+  await tabs.getByRole('tab', { name: '공모요강' }).click();
+  await expect(page.getByLabel('공모요강 제목')).toBeVisible();
   await tabs.getByRole('tab', { name: '문의 페이지' }).click();
   await expect(page.getByLabel('문의 안내문')).toBeVisible();
 });
@@ -296,7 +296,7 @@ test('hamburger lines are geometrically centered in the circular control', async
   expect(Math.abs(metric.buttonCenter - metric.lineGroupCenter)).toBeLessThanOrEqual(1);
 });
 
-test('six-stage calendar marks the stage matching the current date and preserves mobile information', async ({ page }) => {
+test('monthly calendar highlights the real KST day and its active schedule on mobile', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
@@ -307,12 +307,24 @@ test('six-stage calendar marks the stage matching the current date and preserves
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  const stages = page.locator('.schedule-stage');
-  await expect(stages).toHaveCount(6);
-  await expect(stages.filter({ hasText: '공모전 접수' })).toHaveClass(/is-current/);
-  await expect(stages.filter({ hasText: '공모전 접수' }).locator('.schedule-state')).toHaveText('진행 중');
-  await expect(page.getByRole('link', { name: /공모요강 보러가기/ })).toBeVisible();
+  await expect(page.locator('.calendar-month')).toHaveCount(3);
+  await expect(page.locator('.calendar-month').first().locator('.calendar-day')).toHaveCount(35);
+  const today = page.locator('.calendar-day[data-date="2026-09-10"]');
+  await expect(today).toHaveClass(/is-today/);
+  await expect(today).toHaveClass(/is-current-event/);
+  await expect(today).toHaveAttribute('aria-current', 'date');
+  await expect(page.locator('.schedule-event[data-event="apply"]')).toHaveClass(/is-current/);
+  await expect(page.locator('.schedule-event[data-event="apply"] .schedule-state')).toHaveText('진행 중');
+  await expect(page.getByRole('link', { name: '공모요강' }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: '참고자료 다운로드' })).toHaveAttribute('aria-disabled', 'true');
+  await expect(page.getByRole('link', { name: '참고자료 다운로드' })).not.toHaveAttribute('href', /guide\.html/);
   await expect(page.locator('.overview-poster')).toBeVisible();
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-  expect(overflow).toBeLessThanOrEqual(1);
+  const overview = await page.locator('.overview-summary').evaluate((el) => {
+    const rows = [...el.querySelectorAll('.overview-fact')].map((row) => row.getBoundingClientRect());
+    const button = el.querySelector('.overview-guide-button').getBoundingClientRect();
+    return { rowLefts: rows.map((r) => r.left), buttonLeft: button.left, overflow: document.documentElement.scrollWidth - innerWidth };
+  });
+  expect(new Set(overview.rowLefts.map(Math.round)).size).toBe(1);
+  expect(Math.abs(overview.buttonLeft - overview.rowLefts[0])).toBeLessThanOrEqual(1);
+  expect(overview.overflow).toBeLessThanOrEqual(1);
 });

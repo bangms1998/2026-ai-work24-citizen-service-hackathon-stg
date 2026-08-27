@@ -18,7 +18,7 @@
     <img class="brand-logo logo-dark" src="assets/work24-logo-transparent.png" alt="" aria-hidden="true">
   </a>
   <button class="menu" type="button" aria-label="주요 메뉴 열기" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
-  <nav id="nav" aria-label="주요 메뉴"><a href="index.html">홈</a><a href="guide.html">첨부자료</a><a href="notice.html">공지사항</a><a href="faq.html">자주 묻는 질문</a><a href="inquiry.html">문의</a><a href="winners.html">수상작</a></nav>
+  <nav id="nav" aria-label="주요 메뉴"><a href="index.html">홈</a><a href="guide.html">공모요강</a><a href="notice.html">공지사항</a><a href="faq.html">자주 묻는 질문</a><a href="inquiry.html">문의</a><a href="winners.html">수상작</a></nav>
 </header>
 <main id="main">
   <section class="hero hero-editorial">
@@ -30,7 +30,7 @@
       <p class="hero-lead">국민의 경험과 아이디어로 고용24의 새로운 가능성을 찾습니다.<br>누구나 이해하고 참여할 수 있는 온라인 해커톤을 준비하고 있습니다.</p>
       <div class="hero-actions">
         <button id="applyButton" class="glass-action" type="button">접수 준비 중</button>
-        <a class="glass-action glass-link" href="guide.html">첨부자료 <span aria-hidden="true">→</span></a>
+        <a id="resourcesDownload" class="glass-action glass-link" role="link" aria-disabled="true">참고자료 다운로드 <span aria-hidden="true">↗</span></a>
       </div>
       <p id="applyStatus" class="status" aria-live="polite">접수 일정 [미정] · 접수는 Google Form으로 진행됩니다.</p>
     </div>
@@ -44,10 +44,10 @@
         <figcaption><span>KV POSTER</span><strong>공식 포스터 준비 중</strong><small>승인된 최종 KV 수신 후 교체</small></figcaption>
       </figure>
       <div class="overview-summary">
-        <dl>
-          <div><dt>공모전명</dt><dd>2026 AI 고용24 국민참여 서비스 발굴(온라인) 해커톤 <small>임시 명칭</small></dd></div>
-          <div><dt>공모주제</dt><dd>AI로 발견하는 더 나은 고용24 서비스 <small>확인 필요</small></dd></div>
-        </dl>
+        <div class="overview-facts">
+          <div class="overview-fact"><span>공모전명</span><div><strong>2026 AI 고용24 국민참여 서비스 발굴(온라인) 해커톤</strong><small>임시 명칭</small></div></div>
+          <div class="overview-fact"><span>공모주제</span><div><strong>AI로 발견하는 더 나은 고용24 서비스</strong><small>확인 필요</small></div></div>
+        </div>
         <a class="primary overview-guide-button" href="guide.html">공모요강 보러가기 <span aria-hidden="true">→</span></a>
       </div>
     </div>
@@ -63,28 +63,19 @@
   </section>
 
   <section class="section schedule-section" aria-labelledby="schedule-title">
-    <div class="schedule-heading"><div><h2 id="schedule-title">공모일정을<br>한눈에 확인하세요</h2></div><p>TEST 일정이며 추후 변경될 수 있습니다.<br>현재 시점에 해당하는 단계가 자동으로 강조됩니다.</p></div>
-    <ol class="contest-schedule" aria-label="공모전 전체 일정">
-      <li class="schedule-stage" data-start="2026-09-09" data-end="2026-10-06">
-        <div class="schedule-marker"><span>01</span></div><div class="schedule-card"><div class="schedule-card-head"><span class="schedule-state">예정</span><span class="schedule-duration">28일</span></div><h3>공모전 접수</h3><time datetime="2026-09-09/2026-10-06">09.09(수) — 10.06(화)</time></div>
-      </li>
-      <li class="schedule-stage" data-start="2026-10-07" data-end="2026-10-13">
-        <div class="schedule-marker"><span>02</span></div><div class="schedule-card"><div class="schedule-card-head"><span class="schedule-state">예정</span><span class="schedule-duration">7일</span></div><h3>1차 심사</h3><time datetime="2026-10-07/2026-10-13">10.07(수) — 10.13(화)</time></div>
-      </li>
-      <li class="schedule-stage" data-start="2026-10-16" data-end="2026-10-16">
-        <div class="schedule-marker"><span>03</span></div><div class="schedule-card"><div class="schedule-card-head"><span class="schedule-state">예정</span><span class="schedule-duration">1일</span></div><h3>결과 발표 및 영상가이드 공개</h3><time datetime="2026-10-16">10.16(금)</time></div>
-      </li>
-      <li class="schedule-stage" data-start="2026-10-20" data-end="2026-11-02">
-        <div class="schedule-marker"><span>04</span></div><div class="schedule-card"><div class="schedule-card-head"><span class="schedule-state">예정</span><span class="schedule-duration">14일</span></div><h3>서비스 개발</h3><time datetime="2026-10-20/2026-11-02">10.20(화) — 11.02(월)</time></div>
-      </li>
-      <li class="schedule-stage" data-start="2026-11-05" data-end="2026-11-14">
-        <div class="schedule-marker"><span>05</span></div><div class="schedule-card"><div class="schedule-card-head"><span class="schedule-state">예정</span><span class="schedule-duration">10일</span></div><h3>기능 심사 및 공개 검증</h3><time datetime="2026-11-05/2026-11-14">11.05(목) — 11.14(토)</time></div>
-      </li>
-      <li class="schedule-stage" data-start="2026-11-20" data-end="2026-11-20">
-        <div class="schedule-marker"><span>06</span></div><div class="schedule-card"><div class="schedule-card-head"><span class="schedule-state">예정</span><span class="schedule-duration">고정</span></div><h3>시상식</h3><time datetime="2026-11-20">11.20(금)</time></div>
-      </li>
-    </ol>
-    <p class="schedule-note">기준일은 대한민국 표준시(KST)이며, 운영 확정 시 관리자 게시 버전으로 갱신합니다.</p>
+    <div class="schedule-heading"><div><h2 id="schedule-title">날짜로 확인하는<br>공모일정</h2></div><p>TEST 일정이며 추후 변경될 수 있습니다.<br>행사가 있는 날짜와 실제 오늘 날짜가 자동으로 표시됩니다.</p></div>
+    <div id="scheduleData" class="schedule-layout">
+      <div id="scheduleCalendar" class="schedule-calendar" aria-label="2026년 9월부터 11월까지 공모 일정 달력"></div>
+      <ol class="schedule-events" aria-label="공모 일정 상세">
+        <li class="schedule-event" data-event="apply" data-start="2026-09-09" data-end="2026-10-06"><span class="event-index">01</span><div><span class="schedule-state">예정</span><h3>공모전 접수</h3><time datetime="2026-09-09/2026-10-06">09.09(수) — 10.06(화)</time></div><b>28일</b></li>
+        <li class="schedule-event" data-event="review" data-start="2026-10-07" data-end="2026-10-13"><span class="event-index">02</span><div><span class="schedule-state">예정</span><h3>1차 심사</h3><time datetime="2026-10-07/2026-10-13">10.07(수) — 10.13(화)</time></div><b>7일</b></li>
+        <li class="schedule-event" data-event="result" data-start="2026-10-16" data-end="2026-10-16"><span class="event-index">03</span><div><span class="schedule-state">예정</span><h3>결과 발표 및 영상가이드 공개</h3><time datetime="2026-10-16">10.16(금)</time></div><b>1일</b></li>
+        <li class="schedule-event" data-event="develop" data-start="2026-10-20" data-end="2026-11-02"><span class="event-index">04</span><div><span class="schedule-state">예정</span><h3>서비스 개발</h3><time datetime="2026-10-20/2026-11-02">10.20(화) — 11.02(월)</time></div><b>14일</b></li>
+        <li class="schedule-event" data-event="verify" data-start="2026-11-05" data-end="2026-11-14"><span class="event-index">05</span><div><span class="schedule-state">예정</span><h3>기능 심사 및 공개 검증</h3><time datetime="2026-11-05/2026-11-14">11.05(목) — 11.14(토)</time></div><b>10일</b></li>
+        <li class="schedule-event" data-event="ceremony" data-start="2026-11-20" data-end="2026-11-20"><span class="event-index">06</span><div><span class="schedule-state">예정</span><h3>시상식</h3><time datetime="2026-11-20">11.20(금)</time></div><b>고정</b></li>
+      </ol>
+    </div>
+    <p class="schedule-note">검정 날짜는 오늘, 회색 날짜는 일정 구간입니다. 기준 시간대는 대한민국 표준시(KST)입니다.</p>
   </section>
 
   <section class="section info-duo">
@@ -92,8 +83,8 @@
     <article class="support-card"><h2>궁금한 점이 있나요?</h2><p>FAQ에서 자주 묻는 내용을 확인하고, 개인 문의는 전용 문의 경로를 이용해 주세요.</p><div><a class="secondary" href="faq.html">FAQ 보기</a><a class="plain-link" href="inquiry.html">문의하기 →</a></div></article>
   </section>
 
-  <section class="final-cta"><div><h2>고용24의 다음 서비스를<br>함께 제안해 주세요</h2><p>현재는 TEST 단계입니다. 최종 공모요강과 접수 일정은 확정 후 안내합니다.</p><a class="glass-action wide-glass" href="guide.html">첨부자료 <span aria-hidden="true">→</span></a></div></section>
+  <section class="final-cta"><div><h2>고용24의 다음 서비스를<br>함께 제안해 주세요</h2><p>현재는 TEST 단계입니다. 최종 공모요강과 접수 일정은 확정 후 안내합니다.</p><a class="glass-action wide-glass" href="guide.html">공모요강 <span aria-hidden="true">→</span></a></div></section>
 </main>
-<footer class="site-footer"><div><a href="https://www.work24.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="고용24 홈페이지 새 창"><img src="assets/work24-logo-transparent.png" alt="고용24"></a><p>고용24 국민참여 AI 공모전 TEST 사이트<br>공모전 세부 정보는 최종 확정 후 반영합니다.</p></div><div class="footer-links"><a href="guide.html">첨부자료</a><a href="faq.html">FAQ</a><a href="inquiry.html">문의</a><span>운영기관 [확인 필요]</span></div></footer>
+<footer class="site-footer"><div><a href="https://www.work24.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="고용24 홈페이지 새 창"><img src="assets/work24-logo-transparent.png" alt="고용24"></a><p>고용24 국민참여 AI 공모전 TEST 사이트<br>공모전 세부 정보는 최종 확정 후 반영합니다.</p></div><div class="footer-links"><a href="guide.html">공모요강</a><a href="faq.html">FAQ</a><a href="inquiry.html">문의</a><span>운영기관 [확인 필요]</span></div></footer>
 <button class="to-top" type="button" aria-label="페이지 맨 위로"><span aria-hidden="true">↑</span><b>TOP</b></button><script type="module" src="app.js"></script>
 </body></html>

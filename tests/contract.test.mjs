@@ -73,7 +73,7 @@ test('admin prototype preserves operations while sharing the landing editorial d
   for (const action of ['임시저장', '전체 사이트 미리보기', '변경사항 적용', '변경 취소']) assert.match(html, new RegExp(action));
   assert.match(css, /admin editorial refinement/);
   assert.match(html, /class="admin-content-tabs"/);
-  for (const label of ['메인 페이지', '공모안내', '일정·시상', '문의 페이지', '수상작']) assert.match(html, new RegExp(label));
+  for (const label of ['메인 페이지', '공모요강', '일정·시상', '문의 페이지', '수상작']) assert.match(html, new RegExp(label));
   assert.doesNotMatch(html, /<i>0[1-9]<\/i>/);
   assert.match(html, /id="noticeBodyBefore"/);
   assert.match(html, /id="noticeBodyAfter"/);
@@ -108,21 +108,26 @@ test('public navigation, top control and notice table follow the revised informa
   assert.doesNotMatch(css, /\.notice-board thead\{background:#13296c/);
 });
 
-test('landing exposes the provisional resources CTA, poster summary and editable six-stage calendar', async () => {
+test('landing exposes guidelines, an external reference download adapter and a three-month calendar', async () => {
   const html = await read('index.html');
+  const guide = await read('guide.html');
   const inquiry = await read('inquiry.html');
+  const config = await read('site-config.js');
   const css = await read('styles.css');
-  assert.match(html, /class="contest-schedule"/);
-  assert.equal((html.match(/class="schedule-stage"/g) || []).length, 6);
+  assert.match(html, /id="scheduleCalendar"/);
+  assert.match(html, /id="scheduleData"/);
   for (const label of ['공모전 접수', '1차 심사', '결과 발표 및 영상가이드 공개', '서비스 개발', '기능 심사 및 공개 검증', '시상식']) assert.match(html, new RegExp(label));
   assert.match(html, /data-start="2026-09-09"/);
   assert.match(html, /data-end="2026-11-20"/);
-  assert.doesNotMatch(html, /class="process-cards"/);
-  assert.match(html, /첨부자료/);
-  assert.match(html, /공모요강 보러가기/);
+  assert.doesNotMatch(html, /class="contest-schedule"/);
+  assert.match(html, />공모요강<\/a>/);
+  assert.match(guide, /<title>공모요강 \|/);
+  assert.match(html, /id="resourcesDownload"[^>]*>참고자료 다운로드/);
+  assert.match(config, /resourcesUrl:\s*''/);
   assert.match(html, /class="overview-poster"/);
   assert.match(html, /공모전명/);
   assert.match(html, /공모주제/);
   assert.match(inquiry, /bangms1998@stunning\.kr/);
-  assert.match(css, /\.schedule-stage\.is-current/);
+  assert.match(css, /\.calendar-day\.is-today/);
+  assert.match(css, /\.calendar-day\.is-current-event/);
 });
