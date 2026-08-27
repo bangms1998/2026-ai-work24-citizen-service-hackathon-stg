@@ -17,16 +17,17 @@ for (const width of [390, 768, 1440]) {
 
 test('admin prototype requires a valid dirty draft before applying a version', async ({ page }) => {
   await page.goto('/admin.html');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('콘텐츠 관리자');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('관리자 홈');
+  await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: '사이트 콘텐츠' }).click();
   const apply = page.getByRole('button', { name: '변경사항 적용' });
   await expect(apply).toBeDisabled();
   await page.getByLabel('공모전 제목').fill('2026 AI 고용24 국민참여 서비스 발굴 온라인 해커톤 수정안');
   await expect(apply).toBeEnabled();
-  await page.getByRole('button', { name: '미리보기' }).click();
+  await page.getByRole('button', { name: '전체 사이트 미리보기' }).click();
   await expect(page.getByRole('dialog')).toContainText('2026 AI 고용24');
   await page.getByRole('button', { name: '미리보기 닫기' }).click();
   await apply.click();
-  await expect(page.getByText(/버전 v1 적용 완료/)).toBeVisible();
+  await expect(page.getByText(/v1을 TEST 브라우저에 적용/)).toBeVisible();
   await expect(apply).toBeDisabled();
 });
 
@@ -54,6 +55,7 @@ test('editorial hero image remains decorative, responsive and reduced-motion saf
 test('admin action bar never covers the Google Form field', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/admin.html');
+  await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: '사이트 콘텐츠' }).click();
   const inputBox = await page.getByLabel('Google Form URL').boundingBox();
   const actionsBox = await page.locator('.admin-actions').boundingBox();
   expect(inputBox.y + inputBox.height).toBeLessThanOrEqual(actionsBox.y);
@@ -76,14 +78,15 @@ test('decorative English labels are removed and title leading is relaxed', async
   expect(lineHeight).toBeGreaterThanOrEqual(1.18);
 });
 
-test('notice and FAQ cards have measured vertical spacing', async ({ page }) => {
-  for (const path of ['/notice.html', '/faq.html']) {
-    await page.goto(path);
-    const cards = page.locator('.content > .content-card');
-    const first = await cards.nth(0).boundingBox();
-    const second = await cards.nth(1).boundingBox();
-    expect(second.y - (first.y + first.height)).toBeGreaterThanOrEqual(20);
-  }
+test('notice rows and FAQ cards preserve readable vertical rhythm', async ({ page }) => {
+  await page.goto('/notice.html');
+  const rows = page.locator('.notice-board tbody tr');
+  expect((await rows.nth(1).boundingBox()).y - (await rows.nth(0).boundingBox()).y).toBeGreaterThanOrEqual(70);
+  await page.goto('/faq.html');
+  const cards = page.locator('.content > .content-card');
+  const first = await cards.nth(0).boundingBox();
+  const second = await cards.nth(1).boundingBox();
+  expect(second.y - (first.y + first.height)).toBeGreaterThanOrEqual(20);
 });
 
 test('inquiry page has a dedicated synthetic-safe form journey', async ({ page }) => {
@@ -110,4 +113,38 @@ test('public pages never expose file line-number artifacts', async ({ page }) =>
     await page.goto(route);
     expect((await page.locator('body').innerText()).startsWith('1|')).toBeFalsy();
   }
+});
+
+test('transparent hero header becomes readable on scroll and top control returns home viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const header = page.locator('.site-header');
+  await expect(header).not.toHaveClass(/is-scrolled/);
+  await page.evaluate(() => scrollTo(0, 900));
+  await expect(header).toHaveClass(/is-scrolled/);
+  const top = page.locator('.to-top');
+  await expect(top).toHaveClass(/is-visible/);
+  await top.click();
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(10);
+});
+
+test('notice page uses the accessible four-column board and mobile card labels', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/notice.html');
+  await expect(page.getByRole('table', { name: '공지사항 목록' })).toBeVisible();
+  await expect(page.locator('.notice-board tbody tr')).toHaveCount(2);
+  await expect(page.locator('.notice-board td[data-label="작성일"]').first()).toBeVisible();
+});
+
+test('admin workspace exposes every operations area and keeps publish dirty-state safe', async ({ page }) => {
+  await page.goto('/admin.html');
+  const nav = page.getByRole('navigation', { name: '관리자 메뉴' });
+  for (const label of ['관리자 홈', '공지사항', 'FAQ', '팝업', '사이트 콘텐츠', '문의 관리']) await expect(nav.getByRole('button', { name: label })).toBeVisible();
+  await nav.getByRole('button', { name: '사이트 콘텐츠' }).click();
+  const apply = page.getByRole('button', { name: '변경사항 적용' });
+  await expect(apply).toBeDisabled();
+  await page.getByLabel('Hero 제목').fill('고용24 AI 서비스 아이디어 수정안');
+  await expect(apply).toBeEnabled();
+  await nav.getByRole('button', { name: '문의 관리' }).click();
+  await expect(page.getByRole('button', { name: 'CSV 내려받기' })).toBeVisible();
 });

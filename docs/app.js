@@ -29,3 +29,18 @@ inquiryForm?.addEventListener('submit', (event) => {
   inquiryStatus.textContent = `TEST 문의가 확인되었습니다. 확인번호 ${receipt} · 실제 전송·저장되지 않았습니다.`;
   inquiryForm.reset();
 });
+
+const siteHeader = document.querySelector('.site-header');
+const toTop = document.querySelector('.to-top');
+const updateScrollUi = () => {
+  const scrolled = window.scrollY > 72;
+  siteHeader?.classList.toggle('is-scrolled', scrolled);
+  toTop?.classList.toggle('is-visible', window.scrollY > 520);
+};
+window.addEventListener('scroll', updateScrollUi, { passive: true });
+updateScrollUi();
+
+toTop?.addEventListener('click', () => {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' });
+});

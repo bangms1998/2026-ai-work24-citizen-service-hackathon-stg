@@ -57,14 +57,25 @@ test('reference-led editorial system uses a photo hero and restrained glass surf
   assert.doesNotMatch(html, /wantedAX|원티드긱스|dev_01_hero/);
 });
 
-test('admin prototype exposes honest draft preview publish and rollback controls', async () => {
+test('admin prototype exposes an operations workspace with honest TEST boundaries', async () => {
   const html = await read('admin.html');
-  const app = await read('admin.js');
-  for (const label of ['임시저장', '미리보기', '변경사항 적용', '변경 취소', '롤백']) {
-    assert.match(html, new RegExp(label));
-  }
+  const js = await read('admin.js');
   assert.match(html, /인증 없는 TEST 프로토타입/);
-  assert.match(app, /localStorage/);
-  assert.match(app, /dirty/);
-  assert.match(app, /version/);
+  for (const label of ['관리자 홈', '공지사항', 'FAQ', '팝업', '사이트 콘텐츠', '문의 관리']) assert.match(html, new RegExp(label));
+  for (const action of ['임시저장', '전체 사이트 미리보기', '변경사항 적용', '변경 취소', 'CSV 내려받기']) assert.match(html, new RegExp(action));
+  assert.match(js, /localStorage/);
+  assert.match(js, /rollback/);
+  assert.match(js, /downloadInquiryCsv/);
+});
+
+test('public navigation, top control and notice table follow the revised information architecture', async () => {
+  const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'winners.html'];
+  for (const page of pages) {
+    const html = await read(page);
+    assert.match(html, /href="index\.html">홈<\/a>/);
+    assert.match(html, /class="to-top"/);
+  }
+  const notice = await read('notice.html');
+  assert.match(notice, /class="notice-board"/);
+  for (const heading of ['번호', '구분', '제목', '작성일']) assert.match(notice, new RegExp(heading));
 });
