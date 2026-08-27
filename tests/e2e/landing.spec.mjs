@@ -31,13 +31,26 @@ test('admin prototype requires a valid dirty draft before applying a version', a
   await expect(apply).toBeDisabled();
 });
 
-test('supplied transparent logo and self-hosted font render as real assets', async ({ page }) => {
+test('white hero logo switches to the dark logo when the header becomes solid', async ({ page }) => {
   await page.goto('/');
-  const logo = page.locator('.brand img');
-  await expect(logo).toBeVisible();
-  expect(await logo.evaluate((image) => image.naturalWidth)).toBe(106);
-  expect(await logo.evaluate((image) => image.naturalHeight)).toBe(36);
+  const light = page.locator('.logo-light');
+  const dark = page.locator('.logo-dark');
+  await expect(light).toBeVisible();
+  await expect(dark).toBeHidden();
+  expect(await light.evaluate((image) => image.naturalWidth)).toBe(106);
+  expect(await light.evaluate((image) => image.naturalHeight)).toBe(36);
+  expect(await page.locator('.brand').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
+  await page.evaluate(() => scrollTo(0, 900));
+  await expect(light).toBeHidden();
+  await expect(dark).toBeVisible();
   await page.waitForFunction(() => document.fonts.check('16px "Wanted Sans Variable"'));
+});
+
+test('overview uses one visual and four calm fact rows', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.overview-brief > .overview-visual')).toHaveCount(1);
+  await expect(page.locator('.overview-facts > li')).toHaveCount(4);
+  await expect(page.locator('.overview-section .recommend-card')).toHaveCount(0);
 });
 
 test('editorial hero image remains decorative, responsive and reduced-motion safe', async ({ page }) => {
@@ -134,6 +147,14 @@ test('notice page uses the accessible four-column board and mobile card labels',
   await expect(page.getByRole('table', { name: '공지사항 목록' })).toBeVisible();
   await expect(page.locator('.notice-board tbody tr')).toHaveCount(2);
   await expect(page.locator('.notice-board td[data-label="작성일"]').first()).toBeVisible();
+});
+
+test('notice board follows the monochrome editorial palette rather than the reference navy', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/notice.html');
+  const head = page.locator('.notice-board thead');
+  expect(await head.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(243, 243, 241)');
+  expect(await page.locator('.notice-board').evaluate((el) => getComputedStyle(el).borderTopColor)).toBe('rgb(17, 17, 18)');
 });
 
 test('admin workspace exposes every operations area and keeps publish dirty-state safe', async ({ page }) => {

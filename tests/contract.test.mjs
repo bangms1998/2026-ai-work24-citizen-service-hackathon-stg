@@ -31,7 +31,7 @@ test('the page includes accessibility and reduced-motion contracts', async () =>
   assert.match(css, /:focus-visible/);
 });
 
-test('Wanted Sans is self-hosted and the supplied transparent Work24 logo is used', async () => {
+test('Wanted Sans is self-hosted and dark/white Work24 logos switch without a backing box', async () => {
   const css = await read('styles.css');
   const html = await read('index.html');
   const license = await read('assets/fonts/OFL.txt');
@@ -39,6 +39,9 @@ test('Wanted Sans is self-hosted and the supplied transparent Work24 logo is use
   assert.match(css, /assets\/fonts\/WantedSansVariable\.woff2/);
   assert.match(license, /SIL OPEN FONT LICENSE Version 1\.1/);
   assert.match(html, /assets\/work24-logo-transparent\.png/);
+  assert.match(html, /assets\/work24-logo-white\.png/);
+  assert.match(html, /class="brand-logo logo-light"/);
+  assert.match(html, /class="brand-logo logo-dark"/);
   assert.match(html, /www\.work24\.go\.kr/);
 });
 
@@ -48,7 +51,9 @@ test('reference-led editorial system uses a photo hero and restrained glass surf
   assert.match(html, /class="hero hero-editorial"/);
   assert.match(html, /assets\/work24-ai-hero\.webp/);
   assert.match(html, /class="glass-action/);
-  assert.match(html, /class="recommend-grid/);
+  assert.match(html, /class="overview-brief"/);
+  assert.match(html, /class="overview-facts"/);
+  assert.doesNotMatch(html, /class="recommend-card/);
   assert.match(html, /class="feature-grid/);
   assert.doesNotMatch(html, /ai-core|ai-orbit|signal-node/);
   assert.doesNotMatch(css, /--cyan|#41e6ff/i);
@@ -76,6 +81,9 @@ test('public navigation, top control and notice table follow the revised informa
     assert.match(html, /class="to-top"/);
   }
   const notice = await read('notice.html');
+  const css = await read('styles.css');
   assert.match(notice, /class="notice-board"/);
   for (const heading of ['번호', '구분', '제목', '작성일']) assert.match(notice, new RegExp(heading));
+  assert.match(css, /\.notice-board thead\{background:#f3f3f1;color:#1/);
+  assert.doesNotMatch(css, /\.notice-board thead\{background:#13296c/);
 });
