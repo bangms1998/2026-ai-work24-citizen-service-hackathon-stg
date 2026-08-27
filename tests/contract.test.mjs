@@ -51,8 +51,8 @@ test('reference-led editorial system uses a photo hero and restrained glass surf
   assert.match(html, /class="hero hero-editorial"/);
   assert.match(html, /assets\/work24-ai-hero\.webp/);
   assert.match(html, /class="glass-action/);
-  assert.match(html, /class="overview-brief"/);
-  assert.match(html, /class="overview-facts"/);
+  assert.match(html, /class="overview-brief overview-poster-brief"/);
+  assert.match(html, /class="overview-poster"/);
   assert.doesNotMatch(html, /class="recommend-card/);
   assert.match(html, /class="feature-grid/);
   assert.doesNotMatch(html, /ai-core|ai-orbit|signal-node/);
@@ -106,4 +106,23 @@ test('public navigation, top control and notice table follow the revised informa
   for (const heading of ['번호', '구분', '제목', '작성일']) assert.match(notice, new RegExp(heading));
   assert.match(css, /\.notice-board thead\{background:#f3f3f1;color:#1/);
   assert.doesNotMatch(css, /\.notice-board thead\{background:#13296c/);
+});
+
+test('landing exposes the provisional resources CTA, poster summary and editable six-stage calendar', async () => {
+  const html = await read('index.html');
+  const inquiry = await read('inquiry.html');
+  const css = await read('styles.css');
+  assert.match(html, /class="contest-schedule"/);
+  assert.equal((html.match(/class="schedule-stage"/g) || []).length, 6);
+  for (const label of ['공모전 접수', '1차 심사', '결과 발표 및 영상가이드 공개', '서비스 개발', '기능 심사 및 공개 검증', '시상식']) assert.match(html, new RegExp(label));
+  assert.match(html, /data-start="2026-09-09"/);
+  assert.match(html, /data-end="2026-11-20"/);
+  assert.doesNotMatch(html, /class="process-cards"/);
+  assert.match(html, /첨부자료/);
+  assert.match(html, /공모요강 보러가기/);
+  assert.match(html, /class="overview-poster"/);
+  assert.match(html, /공모전명/);
+  assert.match(html, /공모주제/);
+  assert.match(inquiry, /bangms1998@stunning\.kr/);
+  assert.match(css, /\.schedule-stage\.is-current/);
 });

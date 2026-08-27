@@ -46,10 +46,10 @@ test('white hero logo switches to the dark logo when the header becomes solid', 
   await page.waitForFunction(() => document.fonts.check('16px "Wanted Sans Variable"'));
 });
 
-test('overview uses one visual and four calm fact rows', async ({ page }) => {
+test('overview uses one poster and only the contest name and subject', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.overview-brief > .overview-visual')).toHaveCount(1);
-  await expect(page.locator('.overview-facts > li')).toHaveCount(4);
+  await expect(page.locator('.overview-brief > .overview-poster')).toHaveCount(1);
+  await expect(page.locator('.overview-summary dl > div')).toHaveCount(2);
   await expect(page.locator('.overview-section .recommend-card')).toHaveCount(0);
 });
 
@@ -294,4 +294,25 @@ test('hamburger lines are geometrically centered in the circular control', async
     return { buttonCenter: b.top + b.height / 2, lineGroupCenter: (lines[0].top + lines[0].height / 2 + lines[2].top + lines[2].height / 2) / 2 };
   });
   expect(Math.abs(metric.buttonCenter - metric.lineGroupCenter)).toBeLessThanOrEqual(1);
+});
+
+test('six-stage calendar marks the stage matching the current date and preserves mobile information', async ({ page }) => {
+  await page.addInitScript(() => {
+    const NativeDate = Date;
+    class MockDate extends NativeDate {
+      constructor(...args) { super(...(args.length ? args : ['2026-09-10T12:00:00+09:00'])); }
+      static now() { return new NativeDate('2026-09-10T12:00:00+09:00').getTime(); }
+    }
+    window.Date = MockDate;
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const stages = page.locator('.schedule-stage');
+  await expect(stages).toHaveCount(6);
+  await expect(stages.filter({ hasText: '공모전 접수' })).toHaveClass(/is-current/);
+  await expect(stages.filter({ hasText: '공모전 접수' }).locator('.schedule-state')).toHaveText('진행 중');
+  await expect(page.getByRole('link', { name: /공모요강 보러가기/ })).toBeVisible();
+  await expect(page.locator('.overview-poster')).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
 });

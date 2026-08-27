@@ -27,7 +27,35 @@ if (button) {
   button.disabled = !ready;
   if (ready) button.addEventListener('click', () => window.open(siteConfig.formUrl, '_blank', 'noopener,noreferrer'));
 }
-if (status) status.textContent = siteConfig.state === 'OPEN' && siteConfig.formUrl ? '접수 버튼을 누르면 승인된 Google Form이 새 창에서 열립니다.' : '접수 일정 [미정] · 접수는 Google Form으로 진행됩니다.';
+if (status) status.textContent = siteConfig.state === 'OPEN' && siteConfig.formUrl ? '접수 버튼을 누르면 승인된 Google Form이 새 창에서 열립니다.' : '접수 예정 · 2026.09.09(수) — 10.06(화) · Google Form으로 진행됩니다.';
+
+const scheduleStages = [...document.querySelectorAll('.schedule-stage')];
+if (scheduleStages.length) {
+  const now = new Date();
+  let nextStage = null;
+  scheduleStages.forEach((stage) => {
+    const start = new Date(`${stage.dataset.start}T00:00:00+09:00`);
+    const end = new Date(`${stage.dataset.end}T23:59:59+09:00`);
+    const state = stage.querySelector('.schedule-state');
+    stage.classList.remove('is-complete', 'is-current', 'is-next');
+    if (now > end) {
+      stage.classList.add('is-complete');
+      if (state) state.textContent = '완료';
+    } else if (now >= start && now <= end) {
+      stage.classList.add('is-current');
+      if (state) state.textContent = '진행 중';
+      stage.setAttribute('aria-current', 'step');
+    } else {
+      if (state) state.textContent = '예정';
+      if (!nextStage) nextStage = stage;
+    }
+  });
+  if (!scheduleStages.some((stage) => stage.classList.contains('is-current')) && nextStage) {
+    nextStage.classList.add('is-next');
+    const state = nextStage.querySelector('.schedule-state');
+    if (state) state.textContent = '다음 일정';
+  }
+}
 
 const inquiryForm = document.querySelector('#inquiryForm');
 const inquiryStatus = document.querySelector('#inquiryStatus');
