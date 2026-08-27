@@ -31,15 +31,26 @@ test('the page includes accessibility and reduced-motion contracts', async () =>
   assert.match(css, /:focus-visible/);
 });
 
-test('Wanted Sans is self-hosted with its OFL license and Work24 logo provenance', async () => {
+test('Wanted Sans is self-hosted and the supplied transparent Work24 logo is used', async () => {
   const css = await read('styles.css');
   const html = await read('index.html');
   const license = await read('assets/fonts/OFL.txt');
   assert.match(css, /Wanted Sans Variable/);
   assert.match(css, /assets\/fonts\/WantedSansVariable\.woff2/);
   assert.match(license, /SIL OPEN FONT LICENSE Version 1\.1/);
-  assert.match(html, /assets\/work24-logo\.svg/);
+  assert.match(html, /assets\/work24-logo-transparent\.png/);
   assert.match(html, /www\.work24\.go\.kr/);
+});
+
+test('AI contest visual system is project-specific and reference-safe', async () => {
+  const html = await read('index.html');
+  const css = await read('styles.css');
+  assert.match(html, /class="ai-stage"/);
+  assert.match(html, /class="ai-orbit/);
+  assert.match(html, /class="signal-node/);
+  assert.match(css, /--night:/);
+  assert.match(css, /prefers-reduced-motion/);
+  assert.doesNotMatch(html, /wantedAX|무료 진단 신청|원티드긱스/);
 });
 
 test('admin prototype exposes honest draft preview publish and rollback controls', async () => {
