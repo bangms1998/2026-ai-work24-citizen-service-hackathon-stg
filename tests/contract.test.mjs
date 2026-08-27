@@ -42,15 +42,19 @@ test('Wanted Sans is self-hosted and the supplied transparent Work24 logo is use
   assert.match(html, /www\.work24\.go\.kr/);
 });
 
-test('AI contest visual system is project-specific and reference-safe', async () => {
+test('reference-led editorial system uses a photo hero and restrained glass surfaces', async () => {
   const html = await read('index.html');
   const css = await read('styles.css');
-  assert.match(html, /class="ai-stage"/);
-  assert.match(html, /class="ai-orbit/);
-  assert.match(html, /class="signal-node/);
-  assert.match(css, /--night:/);
+  assert.match(html, /class="hero hero-editorial"/);
+  assert.match(html, /assets\/work24-ai-hero\.webp/);
+  assert.match(html, /class="glass-action/);
+  assert.match(html, /class="recommend-grid/);
+  assert.match(html, /class="feature-grid/);
+  assert.doesNotMatch(html, /ai-core|ai-orbit|signal-node/);
+  assert.doesNotMatch(css, /--cyan|#41e6ff/i);
+  assert.match(css, /backdrop-filter:blur/);
   assert.match(css, /prefers-reduced-motion/);
-  assert.doesNotMatch(html, /wantedAX|무료 진단 신청|원티드긱스/);
+  assert.doesNotMatch(html, /wantedAX|원티드긱스|dev_01_hero/);
 });
 
 test('admin prototype exposes honest draft preview publish and rollback controls', async () => {

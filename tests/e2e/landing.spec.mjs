@@ -39,16 +39,16 @@ test('supplied transparent logo and self-hosted font render as real assets', asy
   await page.waitForFunction(() => document.fonts.check('16px "Wanted Sans Variable"'));
 });
 
-test('AI stage remains decorative, responsive and reduced-motion safe', async ({ page }) => {
+test('editorial hero image remains decorative, responsive and reduced-motion safe', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.locator('.ai-stage')).toBeVisible();
-  await expect(page.locator('.ai-stage')).toHaveAttribute('aria-hidden', 'true');
-  await expect(page.locator('.ai-orbit')).toHaveCount(3);
-  await expect(page.locator('.signal-node')).toHaveCount(5);
+  const image = page.locator('.hero-media img');
+  await expect(image).toBeVisible();
+  await expect(image).toHaveAttribute('alt', '');
+  expect(await image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBeTruthy();
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  const animation = await page.locator('.ai-orbit').first().evaluate((el) => getComputedStyle(el).animationName);
-  expect(animation).toBe('none');
+  const transition = await page.locator('.glass-action').first().evaluate((el) => getComputedStyle(el).transitionDuration);
+  expect(transition).toBe('0s');
 });
 
 test('admin action bar never covers the Google Form field', async ({ page }) => {
