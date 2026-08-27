@@ -157,10 +157,16 @@ test('notice board follows the monochrome editorial palette rather than the refe
   expect(await page.locator('.notice-board').evaluate((el) => getComputedStyle(el).borderTopColor)).toBe('rgb(17, 17, 18)');
 });
 
-test('admin workspace exposes every operations area and keeps publish dirty-state safe', async ({ page }) => {
+test('admin workspace exposes every operations area, preserves dirty-state safety, and matches the editorial palette', async ({ page }) => {
   await page.goto('/admin.html');
   const nav = page.getByRole('navigation', { name: '관리자 메뉴' });
   for (const label of ['관리자 홈', '공지사항', 'FAQ', '팝업', '사이트 콘텐츠', '문의 관리']) await expect(nav.getByRole('button', { name: label })).toBeVisible();
+  const logo = page.locator('.admin-brand img');
+  await expect(logo).toHaveAttribute('src', /work24-logo-white\.png/);
+  await expect(logo).toBeVisible();
+  expect(await page.locator('body').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(245, 245, 242)');
+  expect(await page.locator('.admin-header').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(17, 17, 18)');
+  expect(await page.locator('.admin-kpis article').first().evaluate((el) => getComputedStyle(el).borderTopColor)).toBe('rgb(17, 17, 18)');
   await nav.getByRole('button', { name: '사이트 콘텐츠' }).click();
   const apply = page.getByRole('button', { name: '변경사항 적용' });
   await expect(apply).toBeDisabled();
@@ -168,4 +174,11 @@ test('admin workspace exposes every operations area and keeps publish dirty-stat
   await expect(apply).toBeEnabled();
   await nav.getByRole('button', { name: '문의 관리' }).click();
   await expect(page.getByRole('button', { name: 'CSV 내려받기' })).toBeVisible();
+});
+
+for (const width of [390, 768, 1440]) test(`editorial admin has no horizontal overflow at ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 });
+  await page.goto('/admin.html');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
 });

@@ -62,12 +62,18 @@ test('reference-led editorial system uses a photo hero and restrained glass surf
   assert.doesNotMatch(html, /wantedAX|원티드긱스|dev_01_hero/);
 });
 
-test('admin prototype exposes an operations workspace with honest TEST boundaries', async () => {
+test('admin prototype preserves operations while sharing the landing editorial design system', async () => {
   const html = await read('admin.html');
   const js = await read('admin.js');
+  const css = await read('styles.css');
+  assert.match(html, /class="admin-body admin-editorial"/);
+  assert.match(html, /assets\/work24-logo-white\.png/);
   assert.match(html, /인증 없는 TEST 프로토타입/);
   for (const label of ['관리자 홈', '공지사항', 'FAQ', '팝업', '사이트 콘텐츠', '문의 관리']) assert.match(html, new RegExp(label));
   for (const action of ['임시저장', '전체 사이트 미리보기', '변경사항 적용', '변경 취소', 'CSV 내려받기']) assert.match(html, new RegExp(action));
+  assert.match(css, /admin editorial refinement/);
+  assert.match(css, /\.admin-editorial\{background:#f5f5f2;color:#171719/);
+  assert.match(css, /\.admin-editorial \.admin-header\{[^}]*background:#111112/);
   assert.match(js, /localStorage/);
   assert.match(js, /rollback/);
   assert.match(js, /downloadInquiryCsv/);
