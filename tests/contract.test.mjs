@@ -13,13 +13,25 @@ test('public landing exposes every required contest route and honest placeholder
   assert.doesNotMatch(html, /정부24|태극|대한민국정부/);
 });
 
-test('Google Form is a replaceable adapter and never a production hardcode', async () => {
+test('submission destination is a replaceable staging adapter and never a production Form hardcode', async () => {
   const config = await read('site-config.js');
   const app = await read('app.js');
-  assert.match(config, /formUrl:\s*['"]['"]/);
-  assert.match(config, /state:\s*['"]PREOPEN['"]/);
-  assert.match(app, /Google Form/);
+  assert.match(config, /formUrl:\s*['"]apply\.html['"]/);
+  assert.match(config, /state:\s*['"]OPEN['"]/);
+  assert.match(app, /siteConfig\.formUrl/);
   assert.doesNotMatch(config, /docs\.google\.com\/forms\/d\/e\/[A-Za-z0-9_-]{20,}/);
+});
+
+test('public staging copy is operation-like, with an active application and attachment download', async () => {
+  const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'winners.html'];
+  for (const page of pages) {
+    const html = await read(page);
+    assert.doesNotMatch(html, /TEST|테스트/i, `${page} still exposes test copy`);
+  }
+  const html = await read('index.html');
+  const config = await read('site-config.js');
+  assert.match(html, /id="resourcesDownload"[^>]*>첨부파일 다운로드/);
+  assert.match(config, /resourcesUrl:\s*['"]assets\/downloads\/고용24_AI_공모전_참고자료\.txt['"]/);
 });
 
 test('the page includes accessibility and reduced-motion contracts', async () => {
@@ -108,7 +120,7 @@ test('public navigation, top control and notice table follow the revised informa
   assert.doesNotMatch(css, /\.notice-board thead\{background:#13296c/);
 });
 
-test('landing exposes guidelines, an external reference download adapter and a three-month calendar', async () => {
+test('landing exposes guidelines, an attachment download and a four-month calendar', async () => {
   const html = await read('index.html');
   const guide = await read('guide.html');
   const inquiry = await read('inquiry.html');
@@ -116,14 +128,16 @@ test('landing exposes guidelines, an external reference download adapter and a t
   const css = await read('styles.css');
   assert.match(html, /id="scheduleCalendar"/);
   assert.match(html, /id="scheduleData"/);
-  for (const label of ['공모전 접수', '1차 심사', '결과 발표 및 영상가이드 공개', '서비스 개발', '기능 심사 및 공개 검증', '시상식']) assert.match(html, new RegExp(label));
+  for (const label of ['운영 점검 기간', '공모전 접수', '1차 심사', '결과 발표 및 영상가이드 공개', '서비스 개발', '기능 심사 및 공개 검증', '시상식']) assert.match(html, new RegExp(label));
+  assert.match(html, /data-start="2026-08-28"/);
+  assert.match(html, /data-end="2026-09-01"/);
   assert.match(html, /data-start="2026-09-09"/);
   assert.match(html, /data-end="2026-11-20"/);
   assert.doesNotMatch(html, /class="contest-schedule"/);
   assert.match(html, />공모요강<\/a>/);
   assert.match(guide, /<title>공모요강 \|/);
-  assert.match(html, /id="resourcesDownload"[^>]*>참고자료 다운로드/);
-  assert.match(config, /resourcesUrl:\s*''/);
+  assert.match(html, /id="resourcesDownload"[^>]*>첨부파일 다운로드/);
+  assert.match(config, /resourcesUrl:\s*['"]assets\/downloads\/고용24_AI_공모전_참고자료\.txt['"]/);
   assert.match(html, /class="overview-poster"/);
   assert.match(html, /공모전명/);
   assert.match(html, /공모주제/);

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#151515">
+  <meta name="description" content="고용24 AI 공모전 온라인 접수">
+  <title>공모전 접수 | 고용24 공모전</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<header class="site-header">
+  <a class="brand" href="index.html" aria-label="고용24 공모전 홈"><img src="assets/work24-logo-transparent.png" alt="고용24"></a>
+  <button class="menu" type="button" aria-label="주요 메뉴 열기" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button>
+  <nav id="nav" aria-label="주요 메뉴"><a href="index.html">홈</a><a href="guide.html">공모요강</a><a href="notice.html">공지사항</a><a href="faq.html">자주 묻는 질문</a><a href="inquiry.html">문의</a><a href="winners.html">수상작</a></nav>
+</header>
+<main id="main">
+  <section class="sub-hero"><h1>공모전 접수</h1><p>참가 정보와 제안 내용을 입력해 주세요.</p></section>
+  <section class="content inquiry-layout">
+    <div class="inquiry-intro">
+      <h2>접수 전 확인해 주세요</h2>
+      <p>운영 전 검수 환경입니다. 입력 내용과 첨부파일은 서버로 전송하거나 저장하지 않습니다.</p>
+      <a class="text-link" href="guide.html">공모요강 확인하기 <span aria-hidden="true">→</span></a>
+    </div>
+    <form id="applicationForm" class="inquiry-form">
+      <div class="field-row"><div class="field"><label for="applicantName">이름</label><input id="applicantName" name="name" maxlength="30" autocomplete="name" required></div><div class="field"><label for="applicantEmail">이메일</label><input id="applicantEmail" name="email" type="email" maxlength="100" autocomplete="email" required></div></div>
+      <div class="field"><label for="applicationTitle">제안 제목</label><input id="applicationTitle" name="title" maxlength="100" required></div>
+      <div class="field"><label for="applicationSummary">제안 요약</label><textarea id="applicationSummary" name="summary" minlength="20" maxlength="2000" required></textarea><small>20자 이상 2,000자 이하</small></div>
+      <div class="field"><label for="applicationFile">첨부파일</label><input id="applicationFile" name="file" type="file" accept=".pdf,.ppt,.pptx,.zip" required><small>PDF, PPT, PPTX, ZIP · 운영 규격 [확인 필요]</small></div>
+      <label class="consent-check"><input id="applicationConsent" type="checkbox" required><span><strong>개인정보 수집·이용 안내에 동의합니다.</strong><br>현재 입력은 서버에 저장되지 않으며 운영 문구는 [확인 필요]입니다.</span></label>
+      <button class="primary" type="submit">접수 내용 확인</button><p id="applicationStatus" class="form-status" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+</main>
+<footer class="site-footer"><div><a href="https://www.work24.go.kr/" target="_blank" rel="noopener noreferrer" aria-label="고용24 홈페이지 새 창"><img src="assets/work24-logo-transparent.png" alt="고용24"></a><p>고용24 국민참여 AI 공모전<br>공모전 세부 정보는 최종 확정 후 반영합니다.</p></div><div class="footer-links"><a href="guide.html">공모요강</a><a href="faq.html">자주 묻는 질문</a><a href="inquiry.html">문의</a><span>운영기관 [확인 필요]</span></div></footer>
+<button class="to-top" type="button" aria-label="페이지 맨 위로"><span aria-hidden="true">↑</span><b>TOP</b></button>
+<script type="module" src="app.js"></script>
+<script type="module" src="apply.js"></script>
+</body>
+</html>

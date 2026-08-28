@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 
-test('Google Form pre-open journey is explicit and safe', async ({ page }) => {
+test('application and attachment controls are active on staging', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('고용24');
-  await expect(page.getByRole('button', { name: /접수/ })).toBeDisabled();
-  await expect(page.getByText(/Google Form/).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: /접수/ })).toBeEnabled();
+  await expect(page.getByRole('link', { name: '첨부파일 다운로드' })).toHaveAttribute('href', /고용24_AI_공모전_참고자료\.txt/);
 });
 
 for (const width of [390, 768, 1440]) {
@@ -85,8 +85,11 @@ test('header is logo-only and mobile control is a real hamburger icon', async ({
 });
 
 test('decorative English labels are removed and title leading is relaxed', async ({ page }) => {
+  for (const route of ['/', '/notice.html']) {
+    await page.goto(route);
+    await expect(page.locator('.eyebrow, .section-kicker')).toHaveCount(0);
+  }
   await page.goto('/');
-  await expect(page.locator('.eyebrow, .section-kicker')).toHaveCount(0);
   const lineHeight = await page.locator('.hero h1').evaluate((el) => parseFloat(getComputedStyle(el).lineHeight) / parseFloat(getComputedStyle(el).fontSize));
   expect(lineHeight).toBeGreaterThanOrEqual(1.18);
 });
@@ -102,16 +105,16 @@ test('notice rows and FAQ cards preserve readable vertical rhythm', async ({ pag
   expect(second.y - (first.y + first.height)).toBeGreaterThanOrEqual(20);
 });
 
-test('inquiry page has a dedicated synthetic-safe form journey', async ({ page }) => {
+test('inquiry page has a dedicated preview-safe form journey', async ({ page }) => {
   await page.goto('/inquiry.html');
   await page.getByLabel('문의 유형').selectOption('general');
-  await page.getByLabel('이름').fill('테스트 사용자');
+  await page.getByLabel('이름').fill('검수 사용자');
   await page.getByLabel('이메일').fill('test@example.com');
-  await page.getByLabel('문의 제목').fill('테스트 문의');
-  await page.getByLabel('문의 내용').fill('실제 개인정보가 아닌 테스트 문의 내용입니다.');
+  await page.getByLabel('문의 제목').fill('검수 문의');
+  await page.getByLabel('문의 내용').fill('실제 개인정보가 아닌 검수용 문의 내용입니다.');
   await page.getByLabel(/개인정보 수집·이용 안내에 동의/).check();
-  await page.getByRole('button', { name: '테스트 문의 제출' }).click();
-  await expect(page.getByRole('status')).toContainText('TEST 문의가 확인되었습니다');
+  await page.getByRole('button', { name: '문의 내용 확인' }).click();
+  await expect(page.getByRole('status')).toContainText('문의 내용이 확인되었습니다');
 });
 
 test('footer uses the original logo without a white logo patch', async ({ page }) => {
@@ -308,7 +311,7 @@ test('focused month calendar uses tabs, range bars and separates the next sectio
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const tabs = page.getByRole('tablist', { name: '공모일정 월 선택' });
-  await expect(tabs.getByRole('tab')).toHaveCount(3);
+  await expect(tabs.getByRole('tab')).toHaveCount(4);
   await expect(tabs.getByRole('tab', { name: '9월' })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('tabpanel', { name: '9월' })).toBeVisible();
   await expect(page.locator('.calendar-month:visible')).toHaveCount(1);
@@ -365,8 +368,8 @@ test('monthly calendar highlights the real KST day and its active schedule on mo
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.locator('.calendar-month')).toHaveCount(3);
-  await expect(page.locator('.calendar-month').first().locator('.calendar-day')).toHaveCount(35);
+  await expect(page.locator('.calendar-month')).toHaveCount(4);
+  await expect(page.locator('.calendar-month').first().locator('.calendar-day')).toHaveCount(42);
   const today = page.locator('.calendar-day[data-date="2026-09-10"]');
   await expect(today).toHaveClass(/is-today/);
   await expect(today).toHaveClass(/is-current-event/);
@@ -377,8 +380,7 @@ test('monthly calendar highlights the real KST day and its active schedule on mo
   await page.waitForTimeout(120);
   await expect(page.locator('.to-top')).toBeHidden();
   await expect(page.getByRole('link', { name: '공모요강' }).first()).toBeVisible();
-  await expect(page.getByRole('link', { name: '참고자료 다운로드' })).toHaveAttribute('aria-disabled', 'true');
-  await expect(page.getByRole('link', { name: '참고자료 다운로드' })).not.toHaveAttribute('href', /guide\.html/);
+  await expect(page.getByRole('link', { name: '첨부파일 다운로드' })).toHaveAttribute('href', /고용24_AI_공모전_참고자료\.txt/);
   await expect(page.locator('.overview-poster')).toBeVisible();
   const overview = await page.locator('.overview-summary').evaluate((el) => {
     const rows = [...el.querySelectorAll('.overview-fact')].map((row) => row.getBoundingClientRect());
@@ -390,4 +392,22 @@ test('monthly calendar highlights the real KST day and its active schedule on mo
   expect(overview.overflow).toBeLessThanOrEqual(1);
   const sectionGap = await page.locator('.schedule-section').evaluate((section) => Math.round(document.querySelector('.info-duo').getBoundingClientRect().top - section.getBoundingClientRect().bottom));
   expect(sectionGap).toBeGreaterThanOrEqual(48);
+});
+
+test('the five-day operations check is active from August 28 through September 1', async ({ page }) => {
+  await page.addInitScript(() => {
+    const NativeDate = Date;
+    class MockDate extends NativeDate {
+      constructor(...args) { super(...(args.length ? args : ['2026-08-28T12:00:00+09:00'])); }
+      static now() { return new NativeDate('2026-08-28T12:00:00+09:00').getTime(); }
+    }
+    window.Date = MockDate;
+  });
+  await page.goto('/');
+  await page.getByRole('tab', { name: '8월' }).click();
+  await expect(page.getByRole('tab', { name: '8월' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.schedule-event[data-event="operations-check"]')).toHaveClass(/is-current/);
+  await expect(page.locator('.schedule-event[data-event="operations-check"] .schedule-state')).toHaveText('진행 중');
+  await expect(page.locator('.calendar-day[data-date="2026-08-28"]')).toHaveClass(/is-today/);
+  await expect(page.locator('.calendar-day[data-date="2026-09-01"]')).toHaveClass(/event-operations-check/);
 });

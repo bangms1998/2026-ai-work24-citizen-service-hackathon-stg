@@ -20,21 +20,20 @@ window.addEventListener('resize',()=>{if(window.innerWidth>980)setMenu(false)});
 
 const button = document.querySelector('#applyButton');
 const status = document.querySelector('#applyStatus');
-const labels = { PREOPEN: '접수 준비 중', OPEN: 'Google Form으로 접수하기', CLOSED: '접수 마감' };
+const labels = { PREOPEN: '접수 준비 중', OPEN: '공모전 접수하기', CLOSED: '접수 마감' };
 if (button) {
   button.textContent = labels[siteConfig.state] || '접수 상태 확인';
   const ready = siteConfig.state === 'OPEN' && Boolean(siteConfig.formUrl);
   button.disabled = !ready;
   if (ready) button.addEventListener('click', () => window.open(siteConfig.formUrl, '_blank', 'noopener,noreferrer'));
 }
-if (status) status.textContent = siteConfig.state === 'OPEN' && siteConfig.formUrl ? '접수 버튼을 누르면 승인된 Google Form이 새 창에서 열립니다.' : '접수 예정 · 2026.09.09(수) — 10.06(화) · Google Form으로 진행됩니다.';
+if (status) status.textContent = siteConfig.state === 'OPEN' && siteConfig.formUrl ? '접수기간 · 2026.09.09(수) — 10.06(화)' : '접수 예정 · 2026.09.09(수) — 10.06(화)';
 
 const resourcesDownload = document.querySelector('#resourcesDownload');
 if (resourcesDownload) {
   if (siteConfig.resourcesUrl) {
     resourcesDownload.href = siteConfig.resourcesUrl;
-    resourcesDownload.target = '_blank';
-    resourcesDownload.rel = 'noopener noreferrer';
+    resourcesDownload.download = '';
     resourcesDownload.removeAttribute('aria-disabled');
   } else {
     resourcesDownload.setAttribute('aria-disabled', 'true');
@@ -76,6 +75,7 @@ if (scheduleEvents.length && scheduleCalendar) {
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
   const eventNames = new Map(events.map((event) => [event.id, event.element.querySelector('h3').textContent]));
   const shortEventNames = new Map([
+    ['operations-check', '운영 점검'],
     ['apply', '접수'],
     ['review', '1차 심사'],
     ['result', '결과 발표'],
@@ -83,7 +83,7 @@ if (scheduleEvents.length && scheduleCalendar) {
     ['verify', '기능 심사'],
     ['ceremony', '시상식'],
   ]);
-  const months = [8, 9, 10];
+  const months = [7, 8, 9, 10];
   const calendarTabs = document.createElement('div');
   calendarTabs.className = 'calendar-tabs';
   calendarTabs.setAttribute('role', 'tablist');
@@ -92,9 +92,9 @@ if (scheduleEvents.length && scheduleCalendar) {
   calendarPanels.className = 'calendar-panels';
 
   const todayMonth = Number(todayKey.slice(5, 7));
-  const initialMonth = todayMonth >= 9 && todayMonth <= 11
+  const initialMonth = todayMonth >= 8 && todayMonth <= 11
     ? todayMonth
-    : Number((nextEvent?.start || (todayKey < '2026-09-01' ? '2026-09-01' : '2026-11-01')).slice(5, 7));
+    : Number((nextEvent?.start || (todayKey < '2026-08-01' ? '2026-08-01' : '2026-11-01')).slice(5, 7));
 
   const selectMonth = (monthNumber, focusTab = false) => {
     calendarTabs.querySelectorAll('[role="tab"]').forEach((tab) => {
@@ -187,8 +187,8 @@ const inquiryStatus = document.querySelector('#inquiryStatus');
 inquiryForm?.addEventListener('submit', (event) => {
   event.preventDefault();
   if (!inquiryForm.reportValidity()) return;
-  const receipt = `TEST-${Date.now().toString().slice(-6)}`;
-  inquiryStatus.textContent = `TEST 문의가 확인되었습니다. 확인번호 ${receipt} · 실제 전송·저장되지 않았습니다.`;
+  const receipt = `PREVIEW-${Date.now().toString().slice(-6)}`;
+  inquiryStatus.textContent = `문의 내용이 확인되었습니다. 확인번호 ${receipt} · 서버로 전송하거나 저장하지 않았습니다.`;
   inquiryForm.reset();
 });
 
