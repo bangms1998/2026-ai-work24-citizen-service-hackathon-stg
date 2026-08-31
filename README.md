@@ -1,9 +1,10 @@
-# 고용24 공모전 Google Form형 랜딩 — TEST STAGING
+# 고용24 공모전 Google Form형 랜딩
 
-고용24 공모전의 기능·디자인 검수용 L1 정적 랜딩입니다. 실제 접수와 개인정보를 받지 않습니다.
+고용24 공모전의 L1 정적 랜딩 소스입니다. 현재 canonical TEST에서는 실제 접수와 개인정보를 받지 않습니다.
 
-- 공개 테스트 주소: `https://ai-work24-hackathon-2026.pages.dev/`
-- 관리자 TEST 프로토타입: `https://ai-work24-hackathon-2026.pages.dev/admin.html`
+- canonical TEST: `https://stunning-work24-stg.pages.dev/`
+- 관리자 검수 화면: `https://stunning-work24-stg.pages.dev/admin.html`
+- rollback TEST: `https://ai-work24-hackathon-2026.pages.dev/`
 - GitHub 저장소: `https://github.com/bangms1998/2026-ai-work24-citizen-service-hackathon-stg`
 
 ## 디자인·자산
