@@ -412,11 +412,26 @@ test('the five-day operations check is active from August 31 through September 4
   await expect(page.locator('.calendar-day[data-date="2026-09-04"]')).toHaveClass(/event-operations-check/);
 });
 
-test('winner examples present two responsive service previews and safe outbound links', async ({ page }) => {
+test('winner gallery presents two equal service cards and safe outbound links', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/winners.html');
-  await expect(page.getByRole('heading', { name: '예시 수상작' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '수상작 갤러리' })).toBeVisible();
+  await expect(page.locator('main')).not.toContainText('예시');
   await expect(page.locator('.winner-card')).toHaveCount(2);
+  const desktopCards = await page.locator('.winner-card').evaluateAll((cards) => cards.map((card) => {
+    const preview = card.querySelector('.winner-preview');
+    const copy = card.querySelector('.winner-copy');
+    return {
+      width: card.getBoundingClientRect().width,
+      height: card.getBoundingClientRect().height,
+      previewHeight: preview.getBoundingClientRect().height,
+      copyHeight: copy.getBoundingClientRect().height,
+    };
+  }));
+  expect(Math.abs(desktopCards[0].width - desktopCards[1].width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(desktopCards[0].height - desktopCards[1].height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(desktopCards[0].previewHeight - desktopCards[1].previewHeight)).toBeLessThanOrEqual(1);
+  expect(Math.abs(desktopCards[0].copyHeight - desktopCards[1].copyHeight)).toBeLessThanOrEqual(1);
   await expect(page.getByRole('link', { name: /고용24 서비스 보기/ })).toHaveAttribute('href', 'https://www.work24.go.kr/cm/main.do');
   await expect(page.getByRole('link', { name: /원티드 서비스 보기/ })).toHaveAttribute('href', 'https://www.wanted.co.kr/');
   await page.setViewportSize({ width: 390, height: 844 });
