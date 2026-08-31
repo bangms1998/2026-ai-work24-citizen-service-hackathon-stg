@@ -129,8 +129,8 @@ test('landing exposes guidelines, an attachment download and a four-month calend
   assert.match(html, /id="scheduleCalendar"/);
   assert.match(html, /id="scheduleData"/);
   for (const label of ['운영 점검 기간', '공모전 접수', '1차 심사', '결과 발표 및 영상가이드 공개', '서비스 개발', '기능 심사 및 공개 검증', '시상식']) assert.match(html, new RegExp(label));
-  assert.match(html, /data-start="2026-08-28"/);
-  assert.match(html, /data-end="2026-09-01"/);
+  assert.match(html, /data-start="2026-08-31"/);
+  assert.match(html, /data-end="2026-09-04"/);
   assert.match(html, /data-start="2026-09-09"/);
   assert.match(html, /data-end="2026-11-20"/);
   assert.doesNotMatch(html, /class="contest-schedule"/);
@@ -144,4 +144,19 @@ test('landing exposes guidelines, an attachment download and a four-month calend
   assert.match(inquiry, /bangms1998@stunning\.kr/);
   assert.match(css, /\.calendar-day\.is-today/);
   assert.match(css, /\.calendar-day\.is-current-event/);
+});
+
+test('winners page previews implemented web and app services with safe external examples', async () => {
+  const html = await read('winners.html');
+  const css = await read('styles.css');
+  assert.match(html, /class="winner-gallery"/);
+  assert.match(html, /class="winner-card winner-card-featured"/);
+  assert.match(html, /고용24/);
+  assert.match(html, /원티드/);
+  assert.match(html, /https:\/\/www\.work24\.go\.kr\/cm\/main\.do/);
+  assert.match(html, /https:\/\/www\.wanted\.co\.kr\//);
+  assert.match(html, /target="_blank" rel="noopener noreferrer"/);
+  assert.match(html, /예시 수상작/);
+  assert.match(css, /\.winner-gallery/);
+  assert.match(css, /\.winner-preview/);
 });

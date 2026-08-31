@@ -394,12 +394,12 @@ test('monthly calendar highlights the real KST day and its active schedule on mo
   expect(sectionGap).toBeGreaterThanOrEqual(48);
 });
 
-test('the five-day operations check is active from August 28 through September 1', async ({ page }) => {
+test('the five-day operations check is active from August 31 through September 4', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
-      constructor(...args) { super(...(args.length ? args : ['2026-08-28T12:00:00+09:00'])); }
-      static now() { return new NativeDate('2026-08-28T12:00:00+09:00').getTime(); }
+      constructor(...args) { super(...(args.length ? args : ['2026-08-31T12:00:00+09:00'])); }
+      static now() { return new NativeDate('2026-08-31T12:00:00+09:00').getTime(); }
     }
     window.Date = MockDate;
   });
@@ -408,6 +408,22 @@ test('the five-day operations check is active from August 28 through September 1
   await expect(page.getByRole('tab', { name: '8월' })).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('.schedule-event[data-event="operations-check"]')).toHaveClass(/is-current/);
   await expect(page.locator('.schedule-event[data-event="operations-check"] .schedule-state')).toHaveText('진행 중');
-  await expect(page.locator('.calendar-day[data-date="2026-08-28"]')).toHaveClass(/is-today/);
-  await expect(page.locator('.calendar-day[data-date="2026-09-01"]')).toHaveClass(/event-operations-check/);
+  await expect(page.locator('.calendar-day[data-date="2026-08-31"]')).toHaveClass(/is-today/);
+  await expect(page.locator('.calendar-day[data-date="2026-09-04"]')).toHaveClass(/event-operations-check/);
+});
+
+test('winner examples present two responsive service previews and safe outbound links', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/winners.html');
+  await expect(page.getByRole('heading', { name: '예시 수상작' })).toBeVisible();
+  await expect(page.locator('.winner-card')).toHaveCount(2);
+  await expect(page.getByRole('link', { name: /고용24 서비스 보기/ })).toHaveAttribute('href', 'https://www.work24.go.kr/cm/main.do');
+  await expect(page.getByRole('link', { name: /원티드 서비스 보기/ })).toHaveAttribute('href', 'https://www.wanted.co.kr/');
+  await page.setViewportSize({ width: 390, height: 844 });
+  const geometry = await page.locator('.winner-gallery').evaluate((gallery) => ({
+    columns: getComputedStyle(gallery).gridTemplateColumns,
+    overflow: document.documentElement.scrollWidth - innerWidth,
+  }));
+  expect(geometry.columns.split(' ').length).toBe(1);
+  expect(geometry.overflow).toBeLessThanOrEqual(1);
 });
