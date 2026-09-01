@@ -182,16 +182,6 @@ if (scheduleEvents.length && scheduleCalendar) {
   selectMonth(Math.min(11, Math.max(9, initialMonth)));
 }
 
-const inquiryForm = document.querySelector('#inquiryForm');
-const inquiryStatus = document.querySelector('#inquiryStatus');
-inquiryForm?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  if (!inquiryForm.reportValidity()) return;
-  const receipt = `PREVIEW-${Date.now().toString().slice(-6)}`;
-  inquiryStatus.textContent = `문의 내용이 확인되었습니다. 확인번호 ${receipt} · 서버로 전송하거나 저장하지 않았습니다.`;
-  inquiryForm.reset();
-});
-
 const toTop = document.querySelector('.to-top');
 const updateScrollUi = () => {
   const scrolled = window.scrollY > 72;

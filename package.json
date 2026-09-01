@@ -8,6 +8,8 @@
     "test": "node --test tests/*.test.mjs",
     "lint": "node scripts/lint.mjs",
     "build": "node scripts/build.mjs",
+    "release:check": "npm run build && node scripts/release-check.mjs staging",
+    "release:check:production": "npm run build && node scripts/release-check.mjs production",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

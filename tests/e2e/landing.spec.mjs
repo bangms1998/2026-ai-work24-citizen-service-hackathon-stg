@@ -1,10 +1,20 @@
 import { test, expect } from '@playwright/test';
 
-test('application and attachment controls are active on staging', async ({ page }) => {
+test('pre-open staging disables application while keeping the attachment available', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('고용24');
-  await expect(page.getByRole('button', { name: /접수/ })).toBeEnabled();
+  await expect(page.getByRole('button', { name: '접수 준비 중' })).toBeDisabled();
   await expect(page.getByRole('link', { name: '첨부파일 다운로드' })).toHaveAttribute('href', /고용24_AI_공모전_참고자료\.txt/);
+});
+
+test('direct application and inquiry routes cannot lose participant data before launch', async ({ page }) => {
+  await page.goto('/apply.html');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('공모전 접수');
+  await expect(page.getByText('접수 준비 중', { exact: true })).toBeVisible();
+  await expect(page.locator('form')).toHaveCount(0);
+  await page.goto('/inquiry.html');
+  await expect(page.locator('form')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /이메일로 문의하기/ })).toHaveAttribute('href', 'mailto:bangms1998@stunning.kr');
 });
 
 for (const width of [390, 768, 1440]) {
@@ -105,16 +115,11 @@ test('notice rows and FAQ cards preserve readable vertical rhythm', async ({ pag
   expect(second.y - (first.y + first.height)).toBeGreaterThanOrEqual(20);
 });
 
-test('inquiry page has a dedicated preview-safe form journey', async ({ page }) => {
+test('inquiry page directs users to the active operator email without a fake receipt', async ({ page }) => {
   await page.goto('/inquiry.html');
-  await page.getByLabel('문의 유형').selectOption('general');
-  await page.getByLabel('이름').fill('검수 사용자');
-  await page.getByLabel('이메일').fill('test@example.com');
-  await page.getByLabel('문의 제목').fill('검수 문의');
-  await page.getByLabel('문의 내용').fill('실제 개인정보가 아닌 검수용 문의 내용입니다.');
-  await page.getByLabel(/개인정보 수집·이용 안내에 동의/).check();
-  await page.getByRole('button', { name: '문의 내용 확인' }).click();
-  await expect(page.getByRole('status')).toContainText('문의 내용이 확인되었습니다');
+  await expect(page.locator('form')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /이메일로 문의하기/ })).toBeVisible();
+  await expect(page.getByText(/문의 접수 폼은 운영기관/)).toBeVisible();
 });
 
 test('footer uses the original logo without a white logo patch', async ({ page }) => {

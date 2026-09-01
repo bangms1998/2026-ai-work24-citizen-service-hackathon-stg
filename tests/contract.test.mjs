@@ -13,16 +13,16 @@ test('public landing exposes every required contest route and honest placeholder
   assert.doesNotMatch(html, /정부24|태극|대한민국정부/);
 });
 
-test('submission destination is a replaceable staging adapter and never a production Form hardcode', async () => {
+test('submission fails closed until an approved external Form is configured', async () => {
   const config = await read('site-config.js');
   const app = await read('app.js');
-  assert.match(config, /formUrl:\s*['"]apply\.html['"]/);
-  assert.match(config, /state:\s*['"]OPEN['"]/);
+  assert.match(config, /formUrl:\s*['"]['"]/);
+  assert.match(config, /state:\s*['"]PREOPEN['"]/);
   assert.match(app, /siteConfig\.formUrl/);
   assert.doesNotMatch(config, /docs\.google\.com\/forms\/d\/e\/[A-Za-z0-9_-]{20,}/);
 });
 
-test('public staging copy is operation-like, with an active application and attachment download', async () => {
+test('public staging copy is pre-open safe with an attachment download', async () => {
   const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html'];
   for (const page of pages) {
     const html = await read(page);
@@ -32,6 +32,36 @@ test('public staging copy is operation-like, with an active application and atta
   const config = await read('site-config.js');
   assert.match(html, /id="resourcesDownload"[^>]*>첨부파일 다운로드/);
   assert.match(config, /resourcesUrl:\s*['"]assets\/downloads\/고용24_AI_공모전_참고자료\.txt['"]/);
+});
+
+test('public inquiry and application routes do not accept data before their operators are approved', async () => {
+  const inquiry = await read('inquiry.html');
+  const apply = await read('apply.html');
+  const app = await read('app.js');
+  assert.doesNotMatch(inquiry, /<form\b/i);
+  assert.match(inquiry, /mailto:bangms1998@stunning\.kr/);
+  assert.doesNotMatch(apply, /<form\b/i);
+  assert.match(apply, /접수 준비 중/);
+  assert.doesNotMatch(app, /PREVIEW-|inquiryForm/);
+});
+
+test('public artifact declares security headers and remains hostname independent', async () => {
+  const headers = await read('_headers');
+  assert.match(headers, /Content-Security-Policy:/);
+  assert.match(headers, /frame-ancestors 'none'/);
+  assert.match(headers, /Permissions-Policy:/);
+  for (const page of ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'apply.html', 'app.js', 'site-config.js']) {
+    assert.doesNotMatch(await read(page), /stunning-work24-stg\.pages\.dev/);
+  }
+});
+
+test('local QA uses a contest-specific port instead of the shared 4173 default', async () => {
+  const server = await readFile(new URL('../scripts/server.mjs', import.meta.url), 'utf8');
+  const playwright = await readFile(new URL('../playwright.config.mjs', import.meta.url), 'utf8');
+  assert.match(server, /4184/);
+  assert.match(playwright, /4184/);
+  assert.doesNotMatch(server, /4173/);
+  assert.doesNotMatch(playwright, /4173/);
 });
 
 test('the page includes accessibility and reduced-motion contracts', async () => {

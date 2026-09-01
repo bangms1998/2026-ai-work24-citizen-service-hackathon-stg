@@ -2,8 +2,9 @@
 
 ## 주소
 
-- TEST: `/admin.html`
+- 로컬 TEST: `http://127.0.0.1:4184/admin.html`
 - 공개 랜딩: `/`
+- canonical TEST의 `/admin.html`: 404
 
 ## 현재 작동 기능
 
@@ -21,6 +22,8 @@
 ## 중요한 제한
 
 현재는 정적 staging의 localStorage UX 프로토타입이다.
+
+인증·공유 저장·감사 로그가 없으므로 build에서 `admin.html`과 `admin.js`를 제외한다. custom domain을 연결해도 공개되지 않는다.
 
 - 관리자 인증 없음
 - 다른 직원과 공유 저장되지 않음

@@ -3,7 +3,7 @@
 고용24 공모전의 L1 정적 랜딩 소스입니다. 현재 canonical TEST에서는 실제 접수와 개인정보를 받지 않습니다.
 
 - canonical TEST: `https://stunning-work24-stg.pages.dev/`
-- 관리자 검수 화면: `https://stunning-work24-stg.pages.dev/admin.html`
+- 관리자 검수 화면: 로컬에서만 `http://127.0.0.1:4173/admin.html` (공개 빌드 제외)
 - rollback TEST: `https://ai-work24-hackathon-2026.pages.dev/`
 - GitHub 저장소: `https://github.com/bangms1998/2026-ai-work24-citizen-service-hackathon-stg`
 
@@ -12,7 +12,7 @@
 - Wanted Gigs Experts는 정보 위계·여백·타이포 리듬만 참고하고 자산·고유 디자인은 복제하지 않았습니다.
 - Wanted Sans 공식 OFL 1.1 variable font를 self-host합니다. 라이선스는 `src/assets/fonts/OFL.txt`에 보존합니다.
 - 고용24 공식 BI 소개 페이지의 108×36 SVG 연결 배너를 원본 비율로 사용합니다. 공모전 주최 표장 승인은 운영 전 별도 확인이 필요합니다.
-- 관리자 화면은 localStorage 기반 TEST UX 프로토타입이며 인증·공유 DB·실제 production publish는 없습니다.
+- 관리자 화면은 localStorage 기반 UX 프로토타입이며 인증·공유 DB·실제 publish가 없어 공개 `docs/`에서 제외합니다.
 
 ## 로컬 실행
 
@@ -21,7 +21,7 @@ npm ci
 npm run dev
 ```
 
-- URL: `http://127.0.0.1:4173`
+- URL: `http://127.0.0.1:4184`
 - 접수 상태와 Form URL: `src/site-config.js`
 - `PREOPEN`: 접수 버튼 비활성
 - `OPEN` + 승인된 `formUrl`: 새 창으로 Google Form 이동
@@ -42,9 +42,12 @@ npm run dev
 npm test
 npm run lint
 npm run build
+npm run release:check
 npm run test:e2e
 npm audit --audit-level=high
 ```
+
+`npm run release:check:production`은 승인된 Form·개인정보 안내·운영기관·확정 콘텐츠가 없으면 의도적으로 실패합니다.
 
 ## 금지
 
