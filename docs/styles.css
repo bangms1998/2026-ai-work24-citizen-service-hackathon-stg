@@ -224,10 +224,10 @@ body.menu-open{overflow:hidden}
 .winner-intro h2{margin:0}
 .winner-intro p{max-width:640px}
 .winner-gallery{grid-template-columns:1fr;max-width:1120px;margin-inline:auto;gap:24px}
-.winner-card{display:grid;grid-template-columns:minmax(280px,.82fr) minmax(0,1.18fr);height:auto;min-height:340px}
-.winner-preview{height:100%;min-height:340px;flex-basis:auto;padding:28px}
-.winner-copy{justify-content:center;min-height:340px;padding:44px 48px}
+.winner-card{display:grid;grid-template-columns:minmax(280px,.82fr) minmax(0,1.18fr);height:420px;min-height:420px}
+.winner-preview{height:100%;min-height:0;flex-basis:auto;padding:28px}
+.winner-copy{justify-content:center;min-height:0;padding:44px 48px}
 .winner-copy h3{margin:0 0 18px}
 .winner-copy p{margin:0;max-width:560px}
-@media(max-width:760px){.winner-intro{margin-bottom:36px}.winner-card{grid-template-columns:1fr;min-height:0}.winner-preview{height:280px;min-height:280px}.winner-copy{min-height:0;padding:28px 24px 32px}.winner-copy h3{font-size:28px}}
+@media(max-width:760px){.winner-intro{margin-bottom:36px}.winner-card{grid-template-columns:1fr;height:auto;min-height:0}.winner-preview{height:280px;min-height:280px}.winner-copy{min-height:0;padding:28px 24px 32px}.winner-copy h3{font-size:28px}}
 

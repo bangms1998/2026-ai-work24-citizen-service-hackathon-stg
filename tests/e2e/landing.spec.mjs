@@ -432,7 +432,9 @@ test('winner gallery is centered and stacks two horizontal cards with only appro
   expect(desktop.columns.split(' ').length).toBe(1);
   expect(desktop.introAlign).toBe('center');
   expect(desktop.cards[1].y).toBeGreaterThan(desktop.cards[0].y + desktop.cards[0].height);
+  expect(Math.abs(desktop.cards[0].height - desktop.cards[1].height)).toBeLessThanOrEqual(1);
   for (const card of desktop.cards) {
+    expect(card.height).toBeGreaterThanOrEqual(400);
     expect(card.previewWidth).toBeGreaterThan(280);
     expect(card.copyX).toBeGreaterThan(card.x + card.previewWidth - 1);
   }
