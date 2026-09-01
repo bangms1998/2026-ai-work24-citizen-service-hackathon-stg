@@ -150,7 +150,12 @@ test('landing exposes guidelines, an attachment download and a four-month calend
 
 test('winners stay outside the public artifact until an approved release', async () => {
   await assert.rejects(access(new URL('../src/winners.html', import.meta.url)));
-  const draft = await readFile(new URL('../unpublished/winners.html', import.meta.url), 'utf8');
+  const [draft, notFound] = await Promise.all([
+    readFile(new URL('../unpublished/winners.html', import.meta.url), 'utf8'),
+    readFile(new URL('../src/404.html', import.meta.url), 'utf8'),
+  ]);
+  assert.doesNotMatch(notFound, /수상작 갤러리|winner-card/);
+  assert.match(notFound, /요청하신 페이지를 찾을 수 없습니다/);
   assert.match(draft, /class="winner-gallery"/);
   assert.match(draft, /data-delivery-type="link"/);
   assert.match(draft, /data-delivery-type="apk"/);
