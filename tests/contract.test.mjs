@@ -146,20 +146,18 @@ test('landing exposes guidelines, an attachment download and a four-month calend
   assert.match(css, /\.calendar-day\.is-current-event/);
 });
 
-test('winners page presents implemented web and app services as a production-style gallery', async () => {
+test('winners page uses a centered gallery and horizontal cards with only the approved fields', async () => {
   const html = await read('winners.html');
   const css = await read('styles.css');
   assert.match(html, /class="winner-gallery"/);
   assert.doesNotMatch(html, /winner-card-featured/);
   assert.match(html, /고용24/);
   assert.match(html, /원티드/);
-  assert.match(html, /https:\/\/www\.work24\.go\.kr\/cm\/main\.do/);
-  assert.match(html, /https:\/\/www\.wanted\.co\.kr\//);
-  assert.match(html, /target="_blank" rel="noopener noreferrer"/);
   assert.match(html, /수상작 갤러리/);
-  assert.doesNotMatch(html, /예시|LAYOUT PREVIEW|실제 수상작 게시 시/);
+  assert.doesNotMatch(html, /SERVICE SHOWCASE|AWARD ARCHIVE|winner-eyebrow/);
+  assert.doesNotMatch(html, /winner-meta|<dl>|winner-link|winner-note/);
   assert.match(css, /\.winner-gallery/);
   assert.match(css, /\.winner-preview/);
-  assert.match(css, /grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css, /\.winner-card\{[^}]*grid-template-columns:minmax\(280px,\.82fr\) minmax\(0,1\.18fr\)/);
   assert.doesNotMatch(css, /\.winner-card-featured \.winner-preview/);
 });

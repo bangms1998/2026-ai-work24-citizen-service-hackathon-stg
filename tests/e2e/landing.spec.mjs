@@ -412,33 +412,36 @@ test('the five-day operations check is active from August 31 through September 4
   await expect(page.locator('.calendar-day[data-date="2026-09-04"]')).toHaveClass(/event-operations-check/);
 });
 
-test('winner gallery presents two equal service cards and safe outbound links', async ({ page }) => {
+test('winner gallery is centered and stacks two horizontal cards with only approved content', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/winners.html');
   await expect(page.getByRole('heading', { name: '수상작 갤러리' })).toBeVisible();
-  await expect(page.locator('main')).not.toContainText('예시');
+  await expect(page.locator('main')).not.toContainText(/SERVICE SHOWCASE|AWARD ARCHIVE/);
   await expect(page.locator('.winner-card')).toHaveCount(2);
-  const desktopCards = await page.locator('.winner-card').evaluateAll((cards) => cards.map((card) => {
-    const preview = card.querySelector('.winner-preview');
-    const copy = card.querySelector('.winner-copy');
-    return {
-      width: card.getBoundingClientRect().width,
-      height: card.getBoundingClientRect().height,
-      previewHeight: preview.getBoundingClientRect().height,
-      copyHeight: copy.getBoundingClientRect().height,
-    };
-  }));
-  expect(Math.abs(desktopCards[0].width - desktopCards[1].width)).toBeLessThanOrEqual(1);
-  expect(Math.abs(desktopCards[0].height - desktopCards[1].height)).toBeLessThanOrEqual(1);
-  expect(Math.abs(desktopCards[0].previewHeight - desktopCards[1].previewHeight)).toBeLessThanOrEqual(1);
-  expect(Math.abs(desktopCards[0].copyHeight - desktopCards[1].copyHeight)).toBeLessThanOrEqual(1);
-  await expect(page.getByRole('link', { name: /고용24 서비스 보기/ })).toHaveAttribute('href', 'https://www.work24.go.kr/cm/main.do');
-  await expect(page.getByRole('link', { name: /원티드 서비스 보기/ })).toHaveAttribute('href', 'https://www.wanted.co.kr/');
+  await expect(page.locator('.winner-card .winner-meta, .winner-card dl, .winner-card .winner-link, .winner-note')).toHaveCount(0);
+  const desktop = await page.locator('.winner-gallery').evaluate((gallery) => {
+    const intro = document.querySelector('.winner-intro');
+    const cards = [...gallery.querySelectorAll('.winner-card')].map((card) => {
+      const box = card.getBoundingClientRect();
+      const preview = card.querySelector('.winner-preview').getBoundingClientRect();
+      const copy = card.querySelector('.winner-copy').getBoundingClientRect();
+      return { x: box.x, y: box.y, width: box.width, height: box.height, previewWidth: preview.width, copyX: copy.x };
+    });
+    return { columns: getComputedStyle(gallery).gridTemplateColumns, introAlign: getComputedStyle(intro).textAlign, cards };
+  });
+  expect(desktop.columns.split(' ').length).toBe(1);
+  expect(desktop.introAlign).toBe('center');
+  expect(desktop.cards[1].y).toBeGreaterThan(desktop.cards[0].y + desktop.cards[0].height);
+  for (const card of desktop.cards) {
+    expect(card.previewWidth).toBeGreaterThan(280);
+    expect(card.copyX).toBeGreaterThan(card.x + card.previewWidth - 1);
+  }
   await page.setViewportSize({ width: 390, height: 844 });
-  const geometry = await page.locator('.winner-gallery').evaluate((gallery) => ({
-    columns: getComputedStyle(gallery).gridTemplateColumns,
-    overflow: document.documentElement.scrollWidth - innerWidth,
-  }));
-  expect(geometry.columns.split(' ').length).toBe(1);
-  expect(geometry.overflow).toBeLessThanOrEqual(1);
+  const mobile = await page.locator('.winner-card').first().evaluate((card) => {
+    const preview = card.querySelector('.winner-preview').getBoundingClientRect();
+    const copy = card.querySelector('.winner-copy').getBoundingClientRect();
+    return { previewBottom: preview.bottom, copyTop: copy.top, overflow: document.documentElement.scrollWidth - innerWidth };
+  });
+  expect(Math.abs(mobile.previewBottom - mobile.copyTop)).toBeLessThanOrEqual(1);
+  expect(mobile.overflow).toBeLessThanOrEqual(1);
 });
