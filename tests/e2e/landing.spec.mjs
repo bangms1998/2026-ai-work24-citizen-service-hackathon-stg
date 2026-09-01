@@ -125,7 +125,7 @@ test('footer uses the original logo without a white logo patch', async ({ page }
 });
 
 test('public pages never expose file line-number artifacts', async ({ page }) => {
-  for (const route of ['/guide.html', '/notice.html', '/faq.html', '/winners.html']) {
+  for (const route of ['/guide.html', '/notice.html', '/faq.html']) {
     await page.goto(route);
     expect((await page.locator('body').innerText()).startsWith('1|')).toBeFalsy();
   }
@@ -229,11 +229,12 @@ test('popup manager accepts drop image in a fitted 3 by 4 frame and removes it',
   await expect(page.locator('#popupImagePreview')).toBeHidden();
 });
 
-test('site content is separated by five page tabs', async ({ page }) => {
+test('site content excludes winner publishing controls while winners are held back', async ({ page }) => {
   await page.goto('/admin.html');
   await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: '사이트 콘텐츠' }).click();
   const tabs = page.getByRole('tablist', { name: '페이지별 콘텐츠' });
-  await expect(tabs.getByRole('tab')).toHaveCount(5);
+  await expect(tabs.getByRole('tab')).toHaveCount(4);
+  await expect(tabs.getByRole('tab', { name: '수상작' })).toHaveCount(0);
   await tabs.getByRole('tab', { name: '공모요강' }).click();
   await expect(page.getByLabel('공모요강 제목')).toBeVisible();
   await tabs.getByRole('tab', { name: '문의 페이지' }).click();
@@ -412,38 +413,12 @@ test('the five-day operations check is active from August 31 through September 4
   await expect(page.locator('.calendar-day[data-date="2026-09-04"]')).toHaveClass(/event-operations-check/);
 });
 
-test('winner gallery is centered and stacks two horizontal cards with only approved content', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/winners.html');
-  await expect(page.getByRole('heading', { name: '수상작 갤러리' })).toBeVisible();
-  await expect(page.locator('main')).not.toContainText(/SERVICE SHOWCASE|AWARD ARCHIVE/);
-  await expect(page.locator('.winner-card')).toHaveCount(2);
-  await expect(page.locator('.winner-card .winner-meta, .winner-card dl, .winner-card .winner-link, .winner-note')).toHaveCount(0);
-  const desktop = await page.locator('.winner-gallery').evaluate((gallery) => {
-    const intro = document.querySelector('.winner-intro');
-    const cards = [...gallery.querySelectorAll('.winner-card')].map((card) => {
-      const box = card.getBoundingClientRect();
-      const preview = card.querySelector('.winner-preview').getBoundingClientRect();
-      const copy = card.querySelector('.winner-copy').getBoundingClientRect();
-      return { x: box.x, y: box.y, width: box.width, height: box.height, previewWidth: preview.width, copyX: copy.x };
-    });
-    return { columns: getComputedStyle(gallery).gridTemplateColumns, introAlign: getComputedStyle(intro).textAlign, cards };
-  });
-  expect(desktop.columns.split(' ').length).toBe(1);
-  expect(desktop.introAlign).toBe('center');
-  expect(desktop.cards[1].y).toBeGreaterThan(desktop.cards[0].y + desktop.cards[0].height);
-  expect(Math.abs(desktop.cards[0].height - desktop.cards[1].height)).toBeLessThanOrEqual(1);
-  for (const card of desktop.cards) {
-    expect(card.height).toBeGreaterThanOrEqual(400);
-    expect(card.previewWidth).toBeGreaterThan(280);
-    expect(card.copyX).toBeGreaterThan(card.x + card.previewWidth - 1);
+test('winner navigation and direct route stay hidden before release', async ({ page }) => {
+  for (const route of ['/', '/guide.html', '/notice.html', '/faq.html', '/inquiry.html']) {
+    await page.goto(route);
+    await expect(page.getByRole('navigation', { name: '주요 메뉴' }).getByRole('link', { name: '수상작' })).toHaveCount(0);
   }
-  await page.setViewportSize({ width: 390, height: 844 });
-  const mobile = await page.locator('.winner-card').first().evaluate((card) => {
-    const preview = card.querySelector('.winner-preview').getBoundingClientRect();
-    const copy = card.querySelector('.winner-copy').getBoundingClientRect();
-    return { previewBottom: preview.bottom, copyTop: copy.top, overflow: document.documentElement.scrollWidth - innerWidth };
-  });
-  expect(Math.abs(mobile.previewBottom - mobile.copyTop)).toBeLessThanOrEqual(1);
-  expect(mobile.overflow).toBeLessThanOrEqual(1);
+  const response = await page.goto('/winners.html');
+  expect(response.status()).toBe(404);
+  await expect(page.locator('body')).not.toContainText('수상작 갤러리');
 });

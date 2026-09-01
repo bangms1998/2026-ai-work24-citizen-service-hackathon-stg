@@ -34,7 +34,7 @@ npm run dev
 - 공지사항 `notice.html`
 - FAQ `faq.html`
 - 문의 `inquiry.html`
-- 수상작 `winners.html`
+- 수상작: 현재 비공개(`unpublished/winners.html` 보관, 공개 경로는 404)
 
 ## 검증
 

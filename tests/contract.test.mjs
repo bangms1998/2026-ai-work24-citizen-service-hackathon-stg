@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 
 const read = (name) => readFile(new URL(`../src/${name}`, import.meta.url), 'utf8');
 
 test('public landing exposes every required contest route and honest placeholders', async () => {
   const html = await read('index.html');
-  for (const route of ['guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'winners.html']) {
+  for (const route of ['guide.html', 'notice.html', 'faq.html', 'inquiry.html']) {
     assert.match(html, new RegExp(`href=["']${route}`));
   }
   assert.match(html, /\[미정\]|\[확인 필요\]|샘플/);
@@ -23,7 +23,7 @@ test('submission destination is a replaceable staging adapter and never a produc
 });
 
 test('public staging copy is operation-like, with an active application and attachment download', async () => {
-  const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'winners.html'];
+  const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html'];
   for (const page of pages) {
     const html = await read(page);
     assert.doesNotMatch(html, /TEST|테스트/i, `${page} still exposes test copy`);
@@ -85,7 +85,8 @@ test('admin prototype preserves operations while sharing the landing editorial d
   for (const action of ['임시저장', '전체 사이트 미리보기', '변경사항 적용', '변경 취소']) assert.match(html, new RegExp(action));
   assert.match(css, /admin editorial refinement/);
   assert.match(html, /class="admin-content-tabs"/);
-  for (const label of ['메인 페이지', '공모요강', '일정·시상', '문의 페이지', '수상작']) assert.match(html, new RegExp(label));
+  for (const label of ['메인 페이지', '공모요강', '일정·시상', '문의 페이지']) assert.match(html, new RegExp(label));
+  assert.doesNotMatch(html, /data-content-tab="winners"|data-content-panel="winners"|수상작 공개 ON\/OFF/);
   assert.doesNotMatch(html, /<i>0[1-9]<\/i>/);
   assert.match(html, /id="noticeBodyBefore"/);
   assert.match(html, /id="noticeBodyAfter"/);
@@ -106,11 +107,12 @@ test('admin prototype preserves operations while sharing the landing editorial d
 });
 
 test('public navigation, top control and notice table follow the revised information architecture', async () => {
-  const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'winners.html'];
+  const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html'];
   for (const page of pages) {
     const html = await read(page);
     assert.match(html, /href="index\.html">홈<\/a>/);
     assert.match(html, /class="to-top"/);
+    assert.doesNotMatch(html, /href="winners\.html"/);
   }
   const notice = await read('notice.html');
   const css = await read('styles.css');
@@ -146,18 +148,12 @@ test('landing exposes guidelines, an attachment download and a four-month calend
   assert.match(css, /\.calendar-day\.is-current-event/);
 });
 
-test('winners page uses a centered gallery and horizontal cards with only the approved fields', async () => {
-  const html = await read('winners.html');
-  const css = await read('styles.css');
-  assert.match(html, /class="winner-gallery"/);
-  assert.doesNotMatch(html, /winner-card-featured/);
-  assert.match(html, /고용24/);
-  assert.match(html, /원티드/);
-  assert.match(html, /수상작 갤러리/);
-  assert.doesNotMatch(html, /SERVICE SHOWCASE|AWARD ARCHIVE|winner-eyebrow/);
-  assert.doesNotMatch(html, /winner-meta|<dl>|winner-link|winner-note/);
-  assert.match(css, /\.winner-gallery/);
-  assert.match(css, /\.winner-preview/);
-  assert.match(css, /\.winner-card\{[^}]*grid-template-columns:minmax\(280px,\.82fr\) minmax\(0,1\.18fr\)/);
-  assert.doesNotMatch(css, /\.winner-card-featured \.winner-preview/);
+test('winners stay outside the public artifact until an approved release', async () => {
+  await assert.rejects(access(new URL('../src/winners.html', import.meta.url)));
+  const draft = await readFile(new URL('../unpublished/winners.html', import.meta.url), 'utf8');
+  assert.match(draft, /class="winner-gallery"/);
+  assert.match(draft, /data-delivery-type="link"/);
+  assert.match(draft, /data-delivery-type="apk"/);
+  assert.match(draft, /class="[^"]*winner-card-link[^"]*"/);
+  assert.match(draft, /target="_blank" rel="noopener noreferrer"/);
 });
