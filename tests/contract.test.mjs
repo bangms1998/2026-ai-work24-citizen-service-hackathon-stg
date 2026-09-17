@@ -34,15 +34,21 @@ test('public staging copy is pre-open safe with an attachment download', async (
   assert.match(config, /resourcesUrl:\s*['"]assets\/downloads\/고용24_AI_공모전_참고자료\.txt['"]/);
 });
 
-test('public inquiry and application routes do not accept data before their operators are approved', async () => {
+test('public inquiry uses a no-storage email handoff while application stays closed', async () => {
   const inquiry = await read('inquiry.html');
   const apply = await read('apply.html');
   const app = await read('app.js');
-  assert.doesNotMatch(inquiry, /<form\b/i);
-  assert.match(inquiry, /mailto:bangms1998@stunning\.kr/);
+  assert.match(inquiry, /<form\b[^>]*id="inquiryForm"/i);
+  for (const field of ['inquiryType', 'inquiryName', 'inquiryEmail', 'inquiryTitle', 'inquiryMessage']) {
+    assert.match(inquiry, new RegExp(`id=["']${field}["']`));
+  }
+  assert.match(inquiry, /사이트에 저장되지 않습니다/);
+  assert.match(inquiry, /id="inquiryMailLink"/);
   assert.doesNotMatch(apply, /<form\b/i);
   assert.match(apply, /접수 준비 중/);
-  assert.doesNotMatch(app, /PREVIEW-|inquiryForm/);
+  assert.match(app, /inquiryForm/);
+  assert.match(app, /encodeURIComponent/);
+  assert.doesNotMatch(app, /PREVIEW-|TEST-|localStorage|fetch\s*\(/);
 });
 
 test('public artifact declares security headers and remains hostname independent', async () => {
@@ -87,21 +93,26 @@ test('Wanted Sans is self-hosted and dark/white Work24 logos switch without a ba
   assert.match(html, /www\.work24\.go\.kr/);
 });
 
-test('reference-led editorial system uses a photo hero and restrained glass surfaces', async () => {
+test('approved KV system uses separated background and character assets with semantic copy', async () => {
   const html = await read('index.html');
-  const css = await read('styles.css');
-  assert.match(html, /class="hero hero-editorial"/);
-  assert.match(html, /assets\/work24-ai-hero\.webp/);
+  const css = `${await read('styles.css')}\n${await read('kv-theme.css')}`;
+  assert.match(html, /class="hero hero-editorial hero-kv"/);
+  assert.match(html, /assets\/kv\/background-main\.webp/);
+  assert.match(html, /assets\/kv\/character-main\.webp/);
+  assert.match(html, /2026 고용24 국민참여 AI 고용서비스/);
   assert.match(html, /class="glass-action/);
   assert.match(html, /class="overview-brief overview-poster-brief"/);
   assert.match(html, /class="overview-poster"/);
   assert.doesNotMatch(html, /class="recommend-card/);
   assert.match(html, /class="feature-grid/);
   assert.doesNotMatch(html, /ai-core|ai-orbit|signal-node/);
-  assert.doesNotMatch(css, /--cyan|#41e6ff/i);
+  assert.match(css, /SBAggroB/);
+  assert.match(css, /assets\/fonts\/SBAggroB\.woff/);
+  assert.match(css, /\.hero-kv h1/);
   assert.match(css, /backdrop-filter:blur/);
   assert.match(css, /prefers-reduced-motion/);
   assert.doesNotMatch(html, /wantedAX|원티드긱스|dev_01_hero/);
+  assert.doesNotMatch(html, /poster-outlined\.webp[^>]*class="hero/);
 });
 
 test('admin prototype preserves operations while sharing the landing editorial design system', async () => {
@@ -152,7 +163,7 @@ test('public navigation, top control and notice table follow the revised informa
   assert.doesNotMatch(css, /\.notice-board thead\{background:#13296c/);
 });
 
-test('landing exposes guidelines, an attachment download and a four-month calendar', async () => {
+test('landing exposes the approved guidelines, attachment and final three-month calendar', async () => {
   const html = await read('index.html');
   const guide = await read('guide.html');
   const inquiry = await read('inquiry.html');
@@ -160,11 +171,11 @@ test('landing exposes guidelines, an attachment download and a four-month calend
   const css = await read('styles.css');
   assert.match(html, /id="scheduleCalendar"/);
   assert.match(html, /id="scheduleData"/);
-  for (const label of ['운영 점검 기간', '공모전 접수', '1차 심사', '결과 발표 및 영상가이드 공개', '서비스 개발', '기능 심사 및 공개 검증', '시상식']) assert.match(html, new RegExp(label));
-  assert.match(html, /data-start="2026-08-31"/);
-  assert.match(html, /data-end="2026-09-04"/);
-  assert.match(html, /data-start="2026-09-09"/);
-  assert.match(html, /data-end="2026-11-20"/);
+  for (const label of ['공모전 접수', '서류 심사', '심사결과 발표·OT', '서비스 개발', '기능 심사·공개 검증', '본선 참가팀 발표', '본선 발표·시상']) assert.match(html, new RegExp(label));
+  assert.match(html, /data-start="2026-09-21"/);
+  assert.match(html, /data-end="2026-10-13"/);
+  assert.match(html, /data-start="2026-11-27"/);
+  assert.match(html, /data-end="2026-11-27"/);
   assert.doesNotMatch(html, /class="contest-schedule"/);
   assert.match(html, />공모요강<\/a>/);
   assert.match(guide, /<title>공모요강 \|/);

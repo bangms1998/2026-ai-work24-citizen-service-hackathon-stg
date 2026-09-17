@@ -27,7 +27,7 @@ if (button) {
   button.disabled = !ready;
   if (ready) button.addEventListener('click', () => window.open(siteConfig.formUrl, '_blank', 'noopener,noreferrer'));
 }
-if (status) status.textContent = siteConfig.state === 'OPEN' && siteConfig.formUrl ? '접수기간 · 2026.09.09(수) — 10.06(화)' : '접수 예정 · 2026.09.09(수) — 10.06(화)';
+if (status) status.textContent = siteConfig.state === 'OPEN' && siteConfig.formUrl ? '접수기간 · 2026.09.21(월) — 10.13(화) 18:00' : '접수 예정 · 2026.09.21(월) — 10.13(화) 18:00';
 
 const resourcesDownload = document.querySelector('#resourcesDownload');
 if (resourcesDownload) {
@@ -41,6 +41,32 @@ if (resourcesDownload) {
     resourcesDownload.addEventListener('click', (event) => event.preventDefault());
   }
 }
+
+const inquiryForm = document.querySelector('#inquiryForm');
+const inquiryReview = document.querySelector('#inquiryReview');
+const inquiryMailLink = document.querySelector('#inquiryMailLink');
+const inquiryReviewTitle = document.querySelector('#inquiryReviewTitle');
+const inquiryReviewEmail = document.querySelector('#inquiryReviewEmail');
+
+inquiryForm?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (!inquiryForm.reportValidity()) return;
+  const data = new FormData(inquiryForm);
+  const type = String(data.get('type')).trim();
+  const name = String(data.get('name')).trim();
+  const email = String(data.get('email')).trim();
+  const title = String(data.get('title')).trim();
+  const message = String(data.get('message')).trim();
+  const subject = `[고용24 공모전 문의] ${type} · ${title}`;
+  const body = [`문의 유형: ${type}`, `이름: ${name}`, `회신 이메일: ${email}`, '', '문의 내용', message].join('\n');
+  inquiryMailLink.href = `mailto:bangms1998@stunning.kr?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  inquiryReviewTitle.textContent = title;
+  inquiryReviewEmail.textContent = email;
+  inquiryReview.hidden = false;
+  inquiryMailLink.hidden = false;
+  inquiryReview.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  inquiryMailLink.focus({ preventScroll: true });
+});
 
 const scheduleEvents = [...document.querySelectorAll('.schedule-event')];
 const scheduleCalendar = document.querySelector('#scheduleCalendar');
@@ -75,15 +101,15 @@ if (scheduleEvents.length && scheduleCalendar) {
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
   const eventNames = new Map(events.map((event) => [event.id, event.element.querySelector('h3').textContent]));
   const shortEventNames = new Map([
-    ['operations-check', '운영 점검'],
     ['apply', '접수'],
-    ['review', '1차 심사'],
-    ['result', '결과 발표'],
+    ['review', '서류 심사'],
+    ['result', '결과·OT'],
     ['develop', '서비스 개발'],
     ['verify', '기능 심사'],
-    ['ceremony', '시상식'],
+    ['finalist', '본선팀 발표'],
+    ['ceremony', '본선·시상'],
   ]);
-  const months = [7, 8, 9, 10];
+  const months = [8, 9, 10];
   const calendarTabs = document.createElement('div');
   calendarTabs.className = 'calendar-tabs';
   calendarTabs.setAttribute('role', 'tablist');
@@ -92,9 +118,9 @@ if (scheduleEvents.length && scheduleCalendar) {
   calendarPanels.className = 'calendar-panels';
 
   const todayMonth = Number(todayKey.slice(5, 7));
-  const initialMonth = todayMonth >= 8 && todayMonth <= 11
+  const initialMonth = todayMonth >= 9 && todayMonth <= 11
     ? todayMonth
-    : Number((nextEvent?.start || (todayKey < '2026-08-01' ? '2026-08-01' : '2026-11-01')).slice(5, 7));
+    : Number((nextEvent?.start || (todayKey < '2026-09-01' ? '2026-09-01' : '2026-11-01')).slice(5, 7));
 
   const selectMonth = (monthNumber, focusTab = false) => {
     calendarTabs.querySelectorAll('[role="tab"]').forEach((tab) => {

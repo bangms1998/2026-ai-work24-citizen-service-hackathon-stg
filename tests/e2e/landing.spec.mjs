@@ -7,14 +7,14 @@ test('pre-open staging disables application while keeping the attachment availab
   await expect(page.getByRole('link', { name: '첨부파일 다운로드' })).toHaveAttribute('href', /고용24_AI_공모전_참고자료\.txt/);
 });
 
-test('direct application and inquiry routes cannot lose participant data before launch', async ({ page }) => {
+test('application stays closed while inquiry is handed to the user email app without site storage', async ({ page }) => {
   await page.goto('/apply.html');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('공모전 접수');
   await expect(page.getByText('접수 준비 중', { exact: true })).toBeVisible();
   await expect(page.locator('form')).toHaveCount(0);
   await page.goto('/inquiry.html');
-  await expect(page.locator('form')).toHaveCount(0);
-  await expect(page.getByRole('link', { name: /이메일로 문의하기/ })).toHaveAttribute('href', 'mailto:bangms1998@stunning.kr');
+  await expect(page.locator('#inquiryForm')).toBeVisible();
+  await expect(page.getByRole('link', { name: /메일 앱에서 보내기/ })).toBeHidden();
 });
 
 for (const width of [390, 768, 1440]) {
@@ -66,7 +66,7 @@ test('overview uses one poster and only the contest name and subject', async ({ 
 test('editorial hero image remains decorative, responsive and reduced-motion safe', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  const image = page.locator('.hero-media img');
+  const image = page.locator('.hero-media .hero-character-main');
   await expect(image).toBeVisible();
   await expect(image).toHaveAttribute('alt', '');
   expect(await image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBeTruthy();
@@ -115,18 +115,36 @@ test('notice rows and FAQ cards preserve readable vertical rhythm', async ({ pag
   expect(second.y - (first.y + first.height)).toBeGreaterThanOrEqual(20);
 });
 
-test('inquiry page directs users to the active operator email without a fake receipt', async ({ page }) => {
+test('inquiry form validates, reviews, and creates an explicit mail-app handoff without a fake receipt', async ({ page }) => {
   await page.goto('/inquiry.html');
-  await expect(page.locator('form')).toHaveCount(0);
-  await expect(page.getByRole('link', { name: /이메일로 문의하기/ })).toBeVisible();
-  await expect(page.getByText(/문의 접수 폼은 운영기관/)).toBeVisible();
+  await page.getByLabel('문의 유형').selectOption({ label: '접수·제출' });
+  await page.getByLabel('이름').fill('김고용');
+  await page.getByLabel('회신 이메일').fill('person@example.test');
+  await page.getByLabel('문의 제목').fill('접수 파일 규격 문의');
+  await page.getByLabel('문의 내용').fill('제출할 수 있는 파일 형식과 최대 용량을 확인하고 싶습니다.');
+  await page.getByRole('button', { name: '이메일 내용 확인' }).click();
+  const handoff = page.getByRole('link', { name: /메일 앱에서 보내기/ });
+  await expect(handoff).toBeVisible();
+  await expect(handoff).toHaveAttribute('href', /^mailto:bangms1998@stunning\.kr\?subject=/);
+  await expect(page.locator('#inquiryReview')).toContainText('접수 파일 규격 문의');
+  await expect(page.locator('#inquiryReview')).not.toContainText(/확인번호|접수되었습니다/);
+  await expect(page.getByText(/사이트에 저장되지 않습니다/)).toBeVisible();
+});
+
+for (const width of [390, 1440]) test(`inquiry form remains readable without horizontal overflow at ${width}`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 });
+  await page.goto('/inquiry.html');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+  const form = await page.locator('#inquiryForm').boundingBox();
+  expect(form.x).toBeGreaterThanOrEqual(0);
+  expect(form.x + form.width).toBeLessThanOrEqual(width);
 });
 
 test('footer uses the original logo without a white logo patch', async ({ page }) => {
   await page.goto('/');
   const footer = page.locator('.site-footer');
   expect(await footer.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(255, 255, 255)');
-  expect(await footer.locator('img').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
+  expect(await footer.locator('a > img').first().evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
 });
 
 test('public pages never expose file line-number artifacts', async ({ page }) => {
@@ -309,15 +327,15 @@ test('focused month calendar uses tabs, range bars and separates the next sectio
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
-      constructor(...args) { super(...(args.length ? args : ['2026-09-10T12:00:00+09:00'])); }
-      static now() { return new NativeDate('2026-09-10T12:00:00+09:00').getTime(); }
+      constructor(...args) { super(...(args.length ? args : ['2026-09-24T12:00:00+09:00'])); }
+      static now() { return new NativeDate('2026-09-24T12:00:00+09:00').getTime(); }
     }
     window.Date = MockDate;
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   const tabs = page.getByRole('tablist', { name: '공모일정 월 선택' });
-  await expect(tabs.getByRole('tab')).toHaveCount(4);
+  await expect(tabs.getByRole('tab')).toHaveCount(3);
   await expect(tabs.getByRole('tab', { name: '9월' })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('tabpanel', { name: '9월' })).toBeVisible();
   await expect(page.locator('.calendar-month:visible')).toHaveCount(1);
@@ -367,16 +385,16 @@ test('monthly calendar highlights the real KST day and its active schedule on mo
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
-      constructor(...args) { super(...(args.length ? args : ['2026-09-10T12:00:00+09:00'])); }
-      static now() { return new NativeDate('2026-09-10T12:00:00+09:00').getTime(); }
+      constructor(...args) { super(...(args.length ? args : ['2026-09-24T12:00:00+09:00'])); }
+      static now() { return new NativeDate('2026-09-24T12:00:00+09:00').getTime(); }
     }
     window.Date = MockDate;
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.locator('.calendar-month')).toHaveCount(4);
-  await expect(page.locator('.calendar-month').first().locator('.calendar-day')).toHaveCount(42);
-  const today = page.locator('.calendar-day[data-date="2026-09-10"]');
+  await expect(page.locator('.calendar-month')).toHaveCount(3);
+  await expect(page.locator('.calendar-month').first().locator('.calendar-day')).toHaveCount(35);
+  const today = page.locator('.calendar-day[data-date="2026-09-24"]');
   await expect(today).toHaveClass(/is-today/);
   await expect(today).toHaveClass(/is-current-event/);
   await expect(today).toHaveAttribute('aria-current', 'date');
@@ -400,22 +418,22 @@ test('monthly calendar highlights the real KST day and its active schedule on mo
   expect(sectionGap).toBeGreaterThanOrEqual(48);
 });
 
-test('the five-day operations check is active from August 31 through September 4', async ({ page }) => {
+test('the approved application window is active from September 21 through October 13', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
-      constructor(...args) { super(...(args.length ? args : ['2026-08-31T12:00:00+09:00'])); }
-      static now() { return new NativeDate('2026-08-31T12:00:00+09:00').getTime(); }
+      constructor(...args) { super(...(args.length ? args : ['2026-10-13T12:00:00+09:00'])); }
+      static now() { return new NativeDate('2026-10-13T12:00:00+09:00').getTime(); }
     }
     window.Date = MockDate;
   });
   await page.goto('/');
-  await page.getByRole('tab', { name: '8월' }).click();
-  await expect(page.getByRole('tab', { name: '8월' })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.locator('.schedule-event[data-event="operations-check"]')).toHaveClass(/is-current/);
-  await expect(page.locator('.schedule-event[data-event="operations-check"] .schedule-state')).toHaveText('진행 중');
-  await expect(page.locator('.calendar-day[data-date="2026-08-31"]')).toHaveClass(/is-today/);
-  await expect(page.locator('.calendar-day[data-date="2026-09-04"]')).toHaveClass(/event-operations-check/);
+  await page.getByRole('tab', { name: '10월' }).click();
+  await expect(page.getByRole('tab', { name: '10월' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.schedule-event[data-event="apply"]')).toHaveClass(/is-current/);
+  await expect(page.locator('.schedule-event[data-event="apply"] .schedule-state')).toHaveText('진행 중');
+  await expect(page.locator('.calendar-day[data-date="2026-10-13"]')).toHaveClass(/is-today/);
+  await expect(page.locator('.calendar-day[data-date="2026-09-21"]')).toHaveClass(/event-apply/);
 });
 
 test('winner navigation and direct route stay hidden before release', async ({ page }) => {

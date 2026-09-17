@@ -22,7 +22,8 @@ test('sitemap derives every canonical URL from the request host', async () => {
   assert.equal(response.status, 200);
   assert.match(response.headers.get('content-type'), /application\/xml/);
   const body = await response.text();
-  assert.match(body, /https:\/\/contest\.example\.kr\/guide\.html/);
+  assert.match(body, /https:\/\/contest\.example\.kr\/guide/);
+  assert.doesNotMatch(body, /\.html<\/loc>/);
   assert.doesNotMatch(body, /pages\.dev|admin\.html|winners\.html/);
 });
 

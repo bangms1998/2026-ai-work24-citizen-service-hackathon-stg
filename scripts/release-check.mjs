@@ -9,6 +9,7 @@ const exists = async (url) => { try { await access(url); return true; } catch { 
 const publicPages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'apply.html'];
 
 const config = await read(source('site-config.js'));
+const app = await read(source('app.js'));
 const pages = await Promise.all(publicPages.map((name) => read(source(name))));
 const allPublic = `${config}\n${pages.join('\n')}`;
 const state = config.match(/state:\s*['"]([^'"]*)/)?.[1] || '';
@@ -17,7 +18,17 @@ const formUrl = config.match(/formUrl:\s*['"]([^'"]*)/)?.[1] || '';
 if (mode === 'staging') {
   const failures = [];
   if (state !== 'PREOPEN' || formUrl) failures.push('staging intake must be PREOPEN with an empty Form URL');
-  if (/<form\b/i.test(await read(source('apply.html'))) || /<form\b/i.test(await read(source('inquiry.html')))) failures.push('public pre-open routes must not accept data');
+  const apply = await read(source('apply.html'));
+  const inquiry = await read(source('inquiry.html'));
+  const inquiryHasForm = /<form\b/i.test(inquiry);
+  const inquiryIsSafeEmailHandoff = inquiryHasForm
+    && /id="inquiryForm"/.test(inquiry)
+    && /id="inquiryMailLink"[^>]*href="mailto:/.test(inquiry)
+    && /사이트에 저장되지 않습니다/.test(inquiry)
+    && /inquiryForm/.test(app)
+    && /encodeURIComponent/.test(app)
+    && !/fetch\s*\(|localStorage|XMLHttpRequest|navigator\.sendBeacon/.test(app);
+  if (/<form\b/i.test(apply) || (inquiryHasForm && !inquiryIsSafeEmailHandoff)) failures.push('public pre-open routes must not collect or store data');
   if (!(await exists(source('_headers')))) failures.push('security headers are missing');
   if (await exists(built('admin.html')) || await exists(built('admin.js'))) failures.push('browser-only admin leaked into the public build');
   if (/stunning-work24-stg\.pages\.dev/.test(allPublic)) failures.push('public source hardcodes the staging hostname');

@@ -4,6 +4,7 @@ import { extname, join, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = normalize(fileURLToPath(new URL('../src/', import.meta.url))).replace(/[\\/]+$/, '');
+const port = Number(process.env.WORK24_PORT || 4184);
 const types = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -26,6 +27,6 @@ http.createServer(async (req, res) => {
     res.statusCode = 404;
     res.end('Not found');
   }
-}).listen(4184, '127.0.0.1', () => {
-  console.log('work24-googleform-landing http://127.0.0.1:4184');
+}).listen(port, '127.0.0.1', () => {
+  console.log(`work24-googleform-landing http://127.0.0.1:${port}`);
 });

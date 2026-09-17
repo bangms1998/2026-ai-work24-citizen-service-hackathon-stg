@@ -1,4 +1,4 @@
-const publicRoutes = ['/', '/guide.html', '/notice.html', '/faq.html', '/inquiry.html', '/apply.html'];
+const publicRoutes = ['/', '/guide', '/notice', '/faq', '/inquiry', '/apply'];
 
 export async function onRequestGet({ request }) {
   const origin = new URL(request.url).origin;

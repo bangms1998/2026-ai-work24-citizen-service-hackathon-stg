@@ -1,0 +1,10 @@
+SB 어그로 웹폰트 출처 및 사용 근거
+
+- 서체명: SB 어그로 Light / Medium / Bold
+- 공식 소개·라이선스: https://sandbox.co.kr/font
+- 웹폰트 배포본: https://github.com/projectnoonnu/noonfonts_2108
+- 적용 파일: SBAggroL.woff, SBAggroM.woff, SBAggroB.woff
+
+공식 페이지에 따르면 개인·기업 사용자가 무료로 사용할 수 있고 상업적·비상업적 이용, 수정 및 재배포가 허용됩니다. 폰트 파일 자체의 유료 판매는 금지됩니다. 본 프로젝트에서는 웹 UI의 제목·부제·일정 표기에만 자체 호스팅하여 사용합니다.
+
+원본 해시 및 파생 자산 해시는 프로젝트 `_extracted/20260917_KV_web_asset_manifest.json`에 기록했습니다.
