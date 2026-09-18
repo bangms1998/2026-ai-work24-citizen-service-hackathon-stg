@@ -179,7 +179,7 @@ test('public navigation, top control and notice table follow the revised informa
   assert.doesNotMatch(css, /\.notice-board thead\{background:#13296c/);
 });
 
-test('landing exposes the approved guidelines, attachment and exact seven-stage schedule', async () => {
+test('landing exposes the approved guidelines, attachment and poster-led five-stage schedule', async () => {
   const html = await read('index.html');
   const guide = await read('guide.html');
   const inquiry = await read('inquiry.html');
@@ -187,10 +187,9 @@ test('landing exposes the approved guidelines, attachment and exact seven-stage 
   const css = await read('kv-theme.css');
   assert.doesNotMatch(html, /id="scheduleCalendar"|id="scheduleData"|calendar-month|calendar-day/);
   assert.match(html, /class="schedule-events schedule-roadmap"/);
-  for (const label of ['접수', '서류 심사', '심사결과 발표·OT', '서비스 개발', '기능 심사·공개 검증', '본선 참가팀 발표', '본선 발표·시상']) assert.match(html, new RegExp(label));
-  for (const dateLabel of ['9.21 — 10.13', '10.15 — 10.21', '10.22', '10.23 — 11.5', '11.10 — 11.19', '11.20', '11.27']) assert.ok(html.includes(dateLabel));
-  assert.equal((html.match(/class="schedule-event"/g) || []).length, 7);
-  assert.doesNotMatch(html, /10월 중|10월 ~ 11월 중|11월 ~ 12월 중/);
+  for (const label of ['접수', '1차 심사·20팀 발표', '온라인 MVP 개발', '2차 기능심사', '본선 발표·시상']) assert.match(html, new RegExp(label));
+  for (const dateLabel of ['9.21 — 10.13', '10월 중', '10월 ~ 11월 중', '11월 중', '11월 ~ 12월 중']) assert.ok(html.includes(dateLabel));
+  assert.equal((html.match(/class="schedule-event"/g) || []).length, 5);
   assert.match(html, /data-start="2026-09-21"/);
   assert.match(html, /data-end="2026-10-13"/);
   assert.match(html, /data-start="2026-11-27"/);

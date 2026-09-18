@@ -89,7 +89,7 @@ body{font-family:"Pretendard Variable",Pretendard,"Noto Sans KR","Apple SD Gothi
 .schedule-period{display:grid;gap:7px;margin:0;text-align:right}
 .schedule-period strong{color:#66647b;font-size:12px;letter-spacing:.06em}
 .schedule-period span{font-size:clamp(18px,2vw,28px);font-weight:800;letter-spacing:-.035em;color:var(--kv-ink)}
-.schedule-roadmap{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:64px 14px;margin:0;padding:0;border-bottom:0;list-style:none}
+.schedule-roadmap{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:64px 24px;margin:0;padding:0;border-bottom:0;list-style:none}
 .schedule-roadmap:before{display:none}
 .schedule-roadmap .schedule-event{position:relative;z-index:1;display:block;grid-column:auto;min-width:0;min-height:0;padding:0;border:0;border-radius:0;background:transparent;color:var(--kv-ink);box-shadow:none;opacity:1}
 .schedule-roadmap .event-index{display:grid;width:44px;height:44px;margin:0 auto 20px;place-items:center;border:3px solid #fff;border-radius:50%;background:var(--kv-navy);color:#fff;box-shadow:0 0 0 1px rgba(21,24,107,.2);font-size:11px;font-weight:850}

@@ -384,7 +384,7 @@ test('hamburger lines are geometrically centered in the circular control', async
   expect(Math.abs(metric.buttonCenter - metric.lineGroupCenter)).toBeLessThanOrEqual(1);
 });
 
-test('exact schedule removes the month calendar and preserves all seven guideline stages', async ({ page }) => {
+test('poster-led schedule removes the month calendar and preserves all five poster stages', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
@@ -396,15 +396,15 @@ test('exact schedule removes the month calendar and preserves all seven guidelin
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   await expect(page.locator('.schedule-calendar, .calendar-tabs, .calendar-month, .calendar-day')).toHaveCount(0);
-  await expect(page.locator('.schedule-roadmap .schedule-event')).toHaveCount(7);
+  await expect(page.locator('.schedule-roadmap .schedule-event')).toHaveCount(5);
   await expect(page.locator('#schedule-title')).toHaveText('해커톤 일정');
   await expect(page.locator('.schedule-period')).toContainText('9. 21.');
   await expect(page.locator('.schedule-period')).toContainText('10. 13.');
   await expect(page.locator('.schedule-event[data-event="apply"]')).toHaveClass(/is-current/);
   await expect(page.locator('.schedule-event[data-event="apply"] .schedule-state')).toHaveText('진행 중');
-  await expect(page.locator('.schedule-event[data-event="ceremony"]')).toContainText('11.27');
+  await expect(page.locator('.schedule-event[data-event="ceremony"]')).toContainText('11월 ~ 12월 중');
   const stages = await page.locator('.schedule-roadmap .schedule-event').allTextContents();
-  for (const label of ['접수', '서류 심사', '심사결과 발표·OT', '서비스 개발', '기능 심사·공개 검증', '본선 참가팀 발표', '본선 발표·시상']) {
+  for (const label of ['접수', '1차 심사·20팀 발표', '온라인 MVP 개발', '2차 기능심사', '본선 발표·시상']) {
     expect(stages.join(' ')).toContain(label);
   }
   await expect(page.locator('.schedule-note')).toHaveCount(0);
@@ -433,7 +433,7 @@ test('schedule becomes a complete vertical roadmap on mobile without overflow', 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   const stages = page.locator('.schedule-roadmap .schedule-event');
-  await expect(stages).toHaveCount(7);
+  await expect(stages).toHaveCount(5);
   const first = await stages.first().boundingBox();
   const second = await stages.nth(1).boundingBox();
   expect(second.y).toBeGreaterThan(first.y + first.height);
@@ -457,9 +457,9 @@ test('tablet schedule uses one continuous ruled timeline instead of a broken two
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('/');
     const events = page.locator('.schedule-roadmap .schedule-event');
-    await expect(events).toHaveCount(7);
+    await expect(events).toHaveCount(5);
     const rows = await events.evaluateAll((items) => new Set(items.map((item) => Math.round(item.getBoundingClientRect().top))).size);
-    expect(rows).toBe(7);
+    expect(rows).toBe(5);
     for (const event of await events.all()) {
       const box = await event.boundingBox();
       expect(box.x).toBeGreaterThanOrEqual(0);
