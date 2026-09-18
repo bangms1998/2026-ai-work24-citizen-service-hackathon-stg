@@ -1,20 +1,60 @@
 import { test, expect } from '@playwright/test';
 
-test('pre-open staging disables application while keeping the attachment available', async ({ page }) => {
+test('application stays scheduled before the official opening with the approved PDF guideline', async ({ page }) => {
+  await page.addInitScript(() => {
+    const NativeDate = Date;
+    class MockDate extends NativeDate {
+      constructor(...args) { super(...(args.length ? args : ['2026-09-18T12:00:00+09:00'])); }
+      static now() { return new NativeDate('2026-09-18T12:00:00+09:00').getTime(); }
+    }
+    window.Date = MockDate;
+  });
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('고용24');
-  await expect(page.getByRole('button', { name: '접수 준비 중' })).toBeDisabled();
-  await expect(page.getByRole('link', { name: '첨부파일 다운로드' })).toHaveAttribute('href', /고용24_AI_공모전_참고자료\.txt/);
+  await expect(page.getByRole('button', { name: '접수하기' })).toBeDisabled();
+  await expect(page.locator('#applyStatus')).toContainText('접수 예정');
+  await expect(page.locator('.hero-date span')).toHaveText('접수기간');
+  await expect(page.getByRole('link', { name: '요강 다운로드' })).toHaveAttribute('href', /2026_고용24_국민참여_AI_고용서비스_발굴_온라인_해커톤_요강\.pdf/);
 });
 
-test('application stays closed while inquiry is handed to the user email app without site storage', async ({ page }) => {
+test('application guide remains operational without collecting data on the site', async ({ page }) => {
+  await page.addInitScript(() => {
+    const NativeDate = Date;
+    class MockDate extends NativeDate {
+      constructor(...args) { super(...(args.length ? args : ['2026-09-18T12:00:00+09:00'])); }
+      static now() { return new NativeDate('2026-09-18T12:00:00+09:00').getTime(); }
+    }
+    window.Date = MockDate;
+  });
   await page.goto('/apply.html');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('공모전 접수');
-  await expect(page.getByText('접수 준비 중', { exact: true })).toBeVisible();
+  await expect(page.locator('#applyFormLink')).toContainText('접수하기');
+  await expect(page.locator('#applyFormLink')).toHaveAttribute('aria-disabled', 'true');
   await expect(page.locator('form')).toHaveCount(0);
   await page.goto('/inquiry.html');
   await expect(page.locator('#inquiryForm')).toBeVisible();
   await expect(page.getByRole('link', { name: /메일 앱에서 보내기/ })).toBeHidden();
+});
+
+test('approved Google Form opens only during the official deadline window', async ({ page }) => {
+  for (const sample of [
+    { now: '2026-09-18T09:00:00+09:00', label: '접수하기', enabled: false },
+    { now: '2026-09-21T09:00:00+09:00', label: '접수하기', enabled: true },
+    { now: '2026-10-13T18:01:00+09:00', label: '접수하기', enabled: false },
+  ]) {
+    await page.addInitScript((now) => {
+      const NativeDate = Date;
+      class MockDate extends NativeDate {
+        constructor(...args) { super(...(args.length ? args : [now])); }
+        static now() { return new NativeDate(now).getTime(); }
+      }
+      window.Date = MockDate;
+    }, sample.now);
+    await page.goto('/');
+    const button = page.getByRole('button', { name: sample.label });
+    if (sample.enabled) await expect(button).toBeEnabled();
+    else await expect(button).toBeDisabled();
+  }
 });
 
 for (const width of [390, 768, 1440]) {
@@ -41,14 +81,16 @@ test('admin prototype requires a valid dirty draft before applying a version', a
   await expect(apply).toBeDisabled();
 });
 
-test('white hero logo switches to the dark logo when the header becomes solid', async ({ page }) => {
+test('white organizer logos switch to their dark variants when the header becomes solid', async ({ page }) => {
   await page.goto('/');
   const light = page.locator('.logo-light');
   const dark = page.locator('.logo-dark');
   await expect(light).toBeVisible();
   await expect(dark).toBeHidden();
-  expect(await light.evaluate((image) => image.naturalWidth)).toBe(106);
-  expect(await light.evaluate((image) => image.naturalHeight)).toBe(36);
+  expect(await light.locator('img').count()).toBe(2);
+  for (const image of await light.locator('img').all()) {
+    expect(await image.evaluate((element) => element.complete && element.naturalWidth > 0)).toBeTruthy();
+  }
   expect(await page.locator('.brand').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
   await page.evaluate(() => scrollTo(0, 900));
   await expect(light).toBeHidden();
@@ -56,17 +98,20 @@ test('white hero logo switches to the dark logo when the header becomes solid', 
   await page.waitForFunction(() => document.fonts.check('16px "Wanted Sans Variable"'));
 });
 
-test('overview uses one poster and only the contest name and subject', async ({ page }) => {
+test('overview follows the annotated poster-left and editorial-copy-right composition', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.overview-brief > .overview-poster')).toHaveCount(1);
-  await expect(page.locator('.overview-summary .overview-fact')).toHaveCount(2);
-  await expect(page.locator('.overview-section .recommend-card')).toHaveCount(0);
+  await expect(page.locator('.overview-section > .section-heading')).toHaveCount(0);
+  await expect(page.locator('.overview-poster figcaption')).toHaveCount(0);
+  await expect(page.locator('.overview-kicker')).toHaveCount(0);
+  await expect(page.locator('.overview-summary h2')).toContainText(/2026 고용24\s*국민참여/);
+  await expect(page.locator('.overview-summary .overview-fact')).toHaveCount(0);
 });
 
 test('editorial hero image remains decorative, responsive and reduced-motion safe', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  const image = page.locator('.hero-media .hero-character-main');
+  const image = page.locator('.hero-media .hero-character-laptop');
   await expect(image).toBeVisible();
   await expect(image).toHaveAttribute('alt', '');
   expect(await image.evaluate((el) => el.complete && el.naturalWidth > 0)).toBeTruthy();
@@ -104,31 +149,32 @@ test('decorative English labels are removed and title leading is relaxed', async
   expect(lineHeight).toBeGreaterThanOrEqual(1.18);
 });
 
-test('notice rows and FAQ cards preserve readable vertical rhythm', async ({ page }) => {
+test('notice and FAQ pages preserve their routes with empty operational states', async ({ page }) => {
   await page.goto('/notice.html');
-  const rows = page.locator('.notice-board tbody tr');
-  expect((await rows.nth(1).boundingBox()).y - (await rows.nth(0).boundingBox()).y).toBeGreaterThanOrEqual(70);
+  await expect(page.locator('.notice-board tbody tr')).toHaveCount(0);
+  await expect(page.getByText('등록된 공지사항이 없습니다.')).toBeVisible();
   await page.goto('/faq.html');
-  const cards = page.locator('.content > .content-card');
-  const first = await cards.nth(0).boundingBox();
-  const second = await cards.nth(1).boundingBox();
-  expect(second.y - (first.y + first.height)).toBeGreaterThanOrEqual(20);
+  await expect(page.locator('.content > .content-card details')).toHaveCount(0);
+  await expect(page.getByText('등록된 자주 묻는 질문이 없습니다.')).toBeVisible();
 });
 
-test('inquiry form validates, reviews, and creates an explicit mail-app handoff without a fake receipt', async ({ page }) => {
+test('inquiry form submits inside the site and shows the server receipt', async ({ page }) => {
+  await page.route('**/api/inquiry', async (route) => route.fulfill({
+    status: 201,
+    contentType: 'application/json',
+    body: JSON.stringify({ ok: true, receipt: 'Q-20260918-ABC123' }),
+  }));
   await page.goto('/inquiry.html');
   await page.getByLabel('문의 유형').selectOption({ label: '접수·제출' });
-  await page.getByLabel('이름').fill('김고용');
+  await page.locator('#inquiryName').fill('김고용');
   await page.getByLabel('회신 이메일').fill('person@example.test');
   await page.getByLabel('문의 제목').fill('접수 파일 규격 문의');
   await page.getByLabel('문의 내용').fill('제출할 수 있는 파일 형식과 최대 용량을 확인하고 싶습니다.');
-  await page.getByRole('button', { name: '이메일 내용 확인' }).click();
-  const handoff = page.getByRole('link', { name: /메일 앱에서 보내기/ });
-  await expect(handoff).toBeVisible();
-  await expect(handoff).toHaveAttribute('href', /^mailto:bangms1998@stunning\.kr\?subject=/);
-  await expect(page.locator('#inquiryReview')).toContainText('접수 파일 규격 문의');
-  await expect(page.locator('#inquiryReview')).not.toContainText(/확인번호|접수되었습니다/);
-  await expect(page.getByText(/사이트에 저장되지 않습니다/)).toBeVisible();
+  await page.getByLabel(/개인정보 수집·이용에 동의/).check();
+  await page.getByRole('button', { name: '문의 전송' }).click();
+  await expect(page.locator('#inquiryResult')).toContainText('문의가 전송되었습니다');
+  await expect(page.locator('#inquiryResult')).toContainText('Q-20260918-ABC123');
+  await expect(page.getByText(/6개월 보관 후 삭제/)).toBeVisible();
 });
 
 for (const width of [390, 1440]) test(`inquiry form remains readable without horizontal overflow at ${width}`, async ({ page }) => {
@@ -140,11 +186,12 @@ for (const width of [390, 1440]) test(`inquiry form remains readable without hor
   expect(form.x + form.width).toBeLessThanOrEqual(width);
 });
 
-test('footer uses the original logo without a white logo patch', async ({ page }) => {
+test('footer uses enlarged organizer logos without a white logo patch', async ({ page }) => {
   await page.goto('/');
   const footer = page.locator('.site-footer');
   expect(await footer.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(255, 255, 255)');
-  expect(await footer.locator('a > img').first().evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
+  await expect(footer.locator('.organizer-logos img')).toHaveCount(2);
+  expect(await footer.locator('.organizer-logos img').first().evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
 });
 
 test('public pages never expose file line-number artifacts', async ({ page }) => {
@@ -167,12 +214,12 @@ test('transparent hero header becomes readable on scroll and top control returns
   await expect.poll(() => page.evaluate(() => scrollY)).toBeLessThan(10);
 });
 
-test('notice page uses the accessible four-column board and mobile card labels', async ({ page }) => {
+test('notice page keeps the accessible four-column board with an empty operational state', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/notice.html');
   await expect(page.getByRole('table', { name: '공지사항 목록' })).toBeVisible();
-  await expect(page.locator('.notice-board tbody tr')).toHaveCount(2);
-  await expect(page.locator('.notice-board td[data-label="작성일"]').first()).toBeVisible();
+  await expect(page.locator('.notice-board tbody tr')).toHaveCount(0);
+  await expect(page.getByText('등록된 공지사항이 없습니다.')).toBeVisible();
 });
 
 test('notice board follows the monochrome editorial palette rather than the reference navy', async ({ page }) => {
@@ -187,9 +234,11 @@ test('admin workspace exposes every operations area, preserves dirty-state safet
   await page.goto('/admin.html');
   const nav = page.getByRole('navigation', { name: '관리자 메뉴' });
   for (const label of ['관리자 홈', '공지사항', 'FAQ', '팝업', '사이트 콘텐츠', '문의 관리']) await expect(nav.getByRole('button', { name: label })).toBeVisible();
-  const logo = page.locator('.admin-brand img');
-  await expect(logo).toHaveAttribute('src', /work24-logo-white\.png/);
-  await expect(logo).toBeVisible();
+  const logos = page.locator('.admin-organizer-logos img');
+  await expect(logos).toHaveCount(2);
+  await expect(logos.first()).toHaveAttribute('src', /ministry-light\.png/);
+  await expect(logos.last()).toHaveAttribute('src', /keis-light\.png/);
+  await expect(logos.first()).toBeVisible();
   expect(await page.locator('body').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(245, 245, 242)');
   expect(await page.locator('.admin-header').evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(17, 17, 18)');
   expect(await page.locator('.admin-kpis article').first().evaluate((el) => getComputedStyle(el).borderTopColor)).toBe('rgb(17, 17, 18)');
@@ -230,6 +279,9 @@ test('notice manager uploads a fitted image and edits image-top and image-bottom
 test('FAQ manager supports editing an existing record', async ({ page }) => {
   await page.goto('/admin.html');
   await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: 'FAQ' }).click();
+  await page.getByLabel('질문').fill('새 FAQ 질문');
+  await page.getByLabel('답변').fill('새 FAQ 답변');
+  await page.getByRole('button', { name: 'FAQ 추가' }).click();
   await page.locator('#faqAdminList li').first().getByRole('button', { name: '수정' }).click();
   await page.getByLabel('질문').fill('수정된 FAQ 질문');
   await page.getByRole('button', { name: 'FAQ 수정' }).click();
@@ -293,9 +345,18 @@ test('mobile menu is a compact accessible drawer and closes with Escape', async 
 
 test('mobile admin records and readiness cards keep deliberate internal spacing', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const route of ['notices', 'faq']) {
-    await page.goto(`/admin.html#${route}`);
-    const id = route === 'notices' ? '#noticeAdminList' : '#faqAdminList';
+  for (const route of ['공지사항', 'FAQ']) {
+    await page.goto('/admin.html');
+    await page.getByRole('navigation', { name: '관리자 메뉴' }).getByRole('button', { name: route }).click();
+    if (route === '공지사항') {
+      await page.locator('#noticeTitle').fill('간격 검수 공지');
+      await page.getByRole('button', { name: '공지 추가' }).click();
+    } else {
+      await page.getByLabel('질문').fill('간격 검수 FAQ');
+      await page.getByLabel('답변').fill('간격 검수 답변');
+      await page.getByRole('button', { name: 'FAQ 추가' }).click();
+    }
+    const id = route === '공지사항' ? '#noticeAdminList' : '#faqAdminList';
     const row = page.locator(`${id} li`).first();
     const metrics = await row.evaluate((el) => {
       const style = getComputedStyle(el);
@@ -305,7 +366,7 @@ test('mobile admin records and readiness cards keep deliberate internal spacing'
     });
     expect(metrics.paddingLeft).toBeGreaterThanOrEqual(16);
     expect(metrics.actionWidth).toBeLessThanOrEqual(72);
-    if (route === 'notices') expect(metrics.badgeWidth).toBeLessThan(60);
+    if (route === '공지사항') expect(metrics.badgeWidth).toBeLessThan(60);
   }
   await page.goto('/admin.html');
   const readinessGap = await page.locator('.admin-readiness').evaluate((el) => parseFloat(getComputedStyle(el).gap));
@@ -323,7 +384,7 @@ test('hamburger lines are geometrically centered in the circular control', async
   expect(Math.abs(metric.buttonCenter - metric.lineGroupCenter)).toBeLessThanOrEqual(1);
 });
 
-test('focused month calendar uses tabs, range bars and separates the next section', async ({ page }) => {
+test('exact schedule removes the month calendar and preserves all seven guideline stages', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
@@ -334,91 +395,82 @@ test('focused month calendar uses tabs, range bars and separates the next sectio
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
-  const tabs = page.getByRole('tablist', { name: '공모일정 월 선택' });
-  await expect(tabs.getByRole('tab')).toHaveCount(3);
-  await expect(tabs.getByRole('tab', { name: '9월' })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('tabpanel', { name: '9월' })).toBeVisible();
-  await expect(page.locator('.calendar-month:visible')).toHaveCount(1);
-  await expect(page.getByRole('tabpanel', { name: '9월' }).locator('.calendar-event-range')).not.toHaveCount(0);
-  await tabs.getByRole('tab', { name: '10월' }).click();
-  await expect(tabs.getByRole('tab', { name: '10월' })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('tabpanel', { name: '10월' })).toBeVisible();
-  const gap = await page.locator('.schedule-section').evaluate((section) => {
-    const next = document.querySelector('.info-duo');
-    return Math.round(next.getBoundingClientRect().top - section.getBoundingClientRect().bottom);
-  });
-  expect(gap).toBeGreaterThanOrEqual(80);
-  const surfaces = await page.locator('.schedule-section').evaluate((section) => {
-    const previous = document.querySelector('.value-section');
-    const heading = section.querySelector('.schedule-heading');
-    const tabs = section.querySelector('.calendar-tabs');
-    const month = section.querySelector('.calendar-month:not([hidden])');
-    const sectionStyle = getComputedStyle(section);
-    return {
-      background: sectionStyle.backgroundColor,
-      radius: sectionStyle.borderRadius,
-      shadow: sectionStyle.boxShadow,
-      tabsBackground: getComputedStyle(tabs).backgroundColor,
-      tabsRadius: getComputedStyle(tabs).borderRadius,
-      calendarShadow: getComputedStyle(month).boxShadow,
-      calendarRadius: getComputedStyle(month).borderRadius,
-      currentBackground: getComputedStyle(section.querySelector('.schedule-event.is-current')).backgroundColor,
-      currentRadius: getComputedStyle(section.querySelector('.schedule-event.is-current')).borderRadius,
-      currentShadow: getComputedStyle(section.querySelector('.schedule-event.is-current')).boxShadow,
-      headingGap: Math.round(heading.getBoundingClientRect().top - previous.getBoundingClientRect().bottom),
-    };
-  });
-  expect(surfaces.background).toBe('rgba(0, 0, 0, 0)');
-  expect(surfaces.radius).toBe('0px');
-  expect(surfaces.shadow).toBe('none');
-  expect(surfaces.tabsBackground).toBe('rgba(0, 0, 0, 0)');
-  expect(surfaces.tabsRadius).toBe('0px');
-  expect(surfaces.calendarShadow).toBe('none');
-  expect(surfaces.calendarRadius).toBe('0px');
-  expect(surfaces.currentBackground).toBe('rgba(0, 0, 0, 0)');
-  expect(surfaces.currentRadius).toBe('0px');
-  expect(surfaces.currentShadow).toBe('none');
-  expect(surfaces.headingGap).toBeGreaterThanOrEqual(150);
-});
-
-test('monthly calendar highlights the real KST day and its active schedule on mobile', async ({ page }) => {
-  await page.addInitScript(() => {
-    const NativeDate = Date;
-    class MockDate extends NativeDate {
-      constructor(...args) { super(...(args.length ? args : ['2026-09-24T12:00:00+09:00'])); }
-      static now() { return new NativeDate('2026-09-24T12:00:00+09:00').getTime(); }
-    }
-    window.Date = MockDate;
-  });
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
-  await expect(page.locator('.calendar-month')).toHaveCount(3);
-  await expect(page.locator('.calendar-month').first().locator('.calendar-day')).toHaveCount(35);
-  const today = page.locator('.calendar-day[data-date="2026-09-24"]');
-  await expect(today).toHaveClass(/is-today/);
-  await expect(today).toHaveClass(/is-current-event/);
-  await expect(today).toHaveAttribute('aria-current', 'date');
+  await expect(page.locator('.schedule-calendar, .calendar-tabs, .calendar-month, .calendar-day')).toHaveCount(0);
+  await expect(page.locator('.schedule-roadmap .schedule-event')).toHaveCount(7);
+  await expect(page.locator('#schedule-title')).toHaveText('해커톤 일정');
+  await expect(page.locator('.schedule-period')).toContainText('9. 21.');
+  await expect(page.locator('.schedule-period')).toContainText('10. 13.');
   await expect(page.locator('.schedule-event[data-event="apply"]')).toHaveClass(/is-current/);
   await expect(page.locator('.schedule-event[data-event="apply"] .schedule-state')).toHaveText('진행 중');
-  await page.locator('.schedule-section').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(120);
-  await expect(page.locator('.to-top')).toBeHidden();
-  await expect(page.getByRole('link', { name: '공모요강' }).first()).toBeVisible();
-  await expect(page.getByRole('link', { name: '첨부파일 다운로드' })).toHaveAttribute('href', /고용24_AI_공모전_참고자료\.txt/);
-  await expect(page.locator('.overview-poster')).toBeVisible();
-  const overview = await page.locator('.overview-summary').evaluate((el) => {
-    const rows = [...el.querySelectorAll('.overview-fact')].map((row) => row.getBoundingClientRect());
-    const button = el.querySelector('.overview-guide-button').getBoundingClientRect();
-    return { rowLefts: rows.map((r) => r.left), buttonLeft: button.left, overflow: document.documentElement.scrollWidth - innerWidth };
+  await expect(page.locator('.schedule-event[data-event="ceremony"]')).toContainText('11.27');
+  const stages = await page.locator('.schedule-roadmap .schedule-event').allTextContents();
+  for (const label of ['접수', '서류 심사', '심사결과 발표·OT', '서비스 개발', '기능 심사·공개 검증', '본선 참가팀 발표', '본선 발표·시상']) {
+    expect(stages.join(' ')).toContain(label);
+  }
+  await expect(page.locator('.schedule-note')).toHaveCount(0);
+  const roadmap = page.locator('.schedule-roadmap');
+  const layout = await roadmap.evaluate((el) => {
+    const events = [...el.querySelectorAll('.schedule-event')];
+    const rows = new Set(events.map((item) => Math.round(item.getBoundingClientRect().top)));
+    return {
+      rowCount: rows.size,
+      borderBottom: getComputedStyle(el).borderBottomWidth,
+      titleSize: Number.parseFloat(getComputedStyle(events[0].querySelector('h3')).fontSize),
+      dateSize: Number.parseFloat(getComputedStyle(events[0].querySelector('time')).fontSize),
+      connectorDisplay: getComputedStyle(events[0], '::after').display,
+      connectorWidth: Number.parseFloat(getComputedStyle(events[0], '::after').width),
+    };
   });
-  expect(new Set(overview.rowLefts.map(Math.round)).size).toBe(1);
-  expect(Math.abs(overview.buttonLeft - overview.rowLefts[0])).toBeLessThanOrEqual(1);
-  expect(overview.overflow).toBeLessThanOrEqual(1);
-  const sectionGap = await page.locator('.schedule-section').evaluate((section) => Math.round(document.querySelector('.info-duo').getBoundingClientRect().top - section.getBoundingClientRect().bottom));
-  expect(sectionGap).toBeGreaterThanOrEqual(48);
+  expect(layout.rowCount).toBe(1);
+  expect(layout.borderBottom).toBe('0px');
+  expect(layout.titleSize).toBeGreaterThanOrEqual(20);
+  expect(layout.dateSize).toBeGreaterThanOrEqual(16);
+  expect(layout.connectorDisplay).not.toBe('none');
+  expect(layout.connectorWidth).toBeGreaterThan(100);
 });
 
-test('the approved application window is active from September 21 through October 13', async ({ page }) => {
+test('schedule becomes a complete vertical roadmap on mobile without overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const stages = page.locator('.schedule-roadmap .schedule-event');
+  await expect(stages).toHaveCount(7);
+  const first = await stages.first().boundingBox();
+  const second = await stages.nth(1).boundingBox();
+  expect(second.y).toBeGreaterThan(first.y + first.height);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  for (const stage of await stages.all()) {
+    const box = await stage.boundingBox();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+  }
+  const connector = await stages.first().evaluate((event) => ({
+    top: Number.parseFloat(getComputedStyle(event, '::before').top),
+    markerHeight: event.querySelector('.event-index').getBoundingClientRect().height,
+    markerZ: getComputedStyle(event.querySelector('.event-index')).zIndex,
+  }));
+  expect(connector.top).toBeGreaterThanOrEqual(connector.markerHeight + 4);
+  expect(Number(connector.markerZ)).toBeGreaterThan(0);
+});
+
+test('tablet schedule uses one continuous ruled timeline instead of a broken two-column board', async ({ page }) => {
+  for (const width of [768, 1024]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto('/');
+    const events = page.locator('.schedule-roadmap .schedule-event');
+    await expect(events).toHaveCount(7);
+    const rows = await events.evaluateAll((items) => new Set(items.map((item) => Math.round(item.getBoundingClientRect().top))).size);
+    expect(rows).toBe(7);
+    for (const event of await events.all()) {
+      const box = await event.boundingBox();
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(width);
+    }
+    const grid = await events.first().evaluate((event) => getComputedStyle(event).gridTemplateColumns);
+    expect(grid.split(' ').length).toBeGreaterThanOrEqual(2);
+  }
+});
+
+test('the approved application window remains active through October 13 without calendar UI', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
@@ -428,12 +480,226 @@ test('the approved application window is active from September 21 through Octobe
     window.Date = MockDate;
   });
   await page.goto('/');
-  await page.getByRole('tab', { name: '10월' }).click();
-  await expect(page.getByRole('tab', { name: '10월' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.schedule-calendar, [role="tablist"]')).toHaveCount(0);
   await expect(page.locator('.schedule-event[data-event="apply"]')).toHaveClass(/is-current/);
   await expect(page.locator('.schedule-event[data-event="apply"] .schedule-state')).toHaveText('진행 중');
-  await expect(page.locator('.calendar-day[data-date="2026-10-13"]')).toHaveClass(/is-today/);
-  await expect(page.locator('.calendar-day[data-date="2026-09-21"]')).toHaveClass(/event-apply/);
+});
+
+test('the revised main visual uses three distinct characters and limits the color fade to the first two sections', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const flow = page.locator('.kv-flow');
+  await expect(flow.locator(':scope > section')).toHaveCount(2);
+  await expect(flow.locator(':scope > section').nth(0)).toHaveClass(/hero-kv/);
+  await expect(flow.locator(':scope > section').nth(1)).toHaveClass(/overview-section/);
+  await expect(flow.locator('+ .schedule-section')).toBeVisible();
+  expect(await flow.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(37, 52, 144)');
+  expect(await page.locator('.overview-section').evaluate((el) => getComputedStyle(el).backgroundImage)).toContain('linear-gradient');
+
+  const hero = page.locator('.hero-kv');
+  const characters = hero.locator('.hero-character');
+  await expect(characters).toHaveCount(3);
+  for (const character of await characters.all()) {
+    expect(await character.evaluate((el) => el.complete && el.naturalWidth > 0)).toBeTruthy();
+    expect(await character.evaluate((el) => getComputedStyle(el).filter)).toBe('none');
+  }
+
+  const layout = await hero.evaluate((section) => {
+    const box = (selector) => section.querySelector(selector).getBoundingClientRect();
+    const center = (rect) => rect.left + rect.width / 2;
+    const copy = box('.hero-copy');
+    const laptop = box('.hero-character-laptop');
+    const bag = box('.hero-character-bag');
+    const yellow = box('.hero-character-yellow');
+    return { copyCenter: center(copy), laptopCenter: center(laptop), bagCenter: center(bag), yellowCenter: center(yellow), width: innerWidth };
+  });
+  expect(Math.abs(layout.copyCenter - layout.width / 2)).toBeLessThanOrEqual(24);
+  expect(layout.laptopCenter).toBeGreaterThan(layout.copyCenter + 300);
+  expect(layout.bagCenter).toBeLessThan(layout.copyCenter - 300);
+  expect(layout.yellowCenter).toBeLessThan(layout.copyCenter - 220);
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const character of await characters.all()) {
+    expect(await character.evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
+  }
+});
+
+test('tablet hero lifts subdued characters behind the copy and the second section starts with the hero edge color', async ({ page }) => {
+  for (const width of [768]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto('/');
+    const geometry = await page.locator('.hero-kv').evaluate((hero) => {
+      const copy = hero.querySelector('.hero-copy').getBoundingClientRect();
+      const characters = [...hero.querySelectorAll('.hero-character')].map((item) => item.getBoundingClientRect());
+      const overlap = characters.some((box) => !(box.bottom <= copy.top || box.top >= copy.bottom || box.right <= copy.left || box.left >= copy.right));
+      return { overlap, copyBottom: copy.bottom, firstCharacterTop: Math.min(...characters.map((box) => box.top)), heroBottom: hero.getBoundingClientRect().bottom };
+    });
+    expect(geometry.overlap).toBeTruthy();
+    expect(geometry.firstCharacterTop).toBeLessThan(geometry.copyBottom);
+    expect(geometry.heroBottom).toBeGreaterThan(geometry.firstCharacterTop);
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const seam = await page.evaluate(() => {
+    const hero = document.querySelector('.hero-kv');
+    const overview = document.querySelector('.overview-section');
+    const heroShade = getComputedStyle(document.querySelector('.hero-shade')).backgroundImage;
+    const heroEdge = getComputedStyle(hero, '::after');
+    const overviewBox = overview.getBoundingClientRect();
+    return {
+      flow: getComputedStyle(document.querySelector('.kv-flow')).backgroundColor,
+      overviewImage: getComputedStyle(overview).backgroundImage,
+      heroShade,
+      heroEdgeColor: heroEdge.backgroundColor,
+      heroEdgeHeight: Number.parseFloat(heroEdge.height),
+      overviewLeft: Math.round(overviewBox.left),
+      overviewWidth: Math.round(overviewBox.width),
+      seamDelta: Math.round(overviewBox.top - hero.getBoundingClientRect().bottom),
+    };
+  });
+  expect(seam.flow).toBe('rgb(37, 52, 144)');
+  expect(seam.overviewImage).toContain('rgb(37, 52, 144)');
+  expect(seam.overviewLeft).toBe(0);
+  expect(seam.overviewWidth).toBe(1440);
+  expect(seam.seamDelta).toBeLessThanOrEqual(0);
+  expect(seam.heroShade).toContain('92%');
+  expect(seam.heroEdgeColor).toBe('rgb(37, 52, 144)');
+  expect(seam.heroEdgeHeight).toBeGreaterThanOrEqual(12);
+});
+
+test('mobile overview keeps a clear gap between the poster and the copy', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const spacing = await page.locator('.overview-poster-brief').evaluate((section) => {
+    const poster = section.querySelector('.overview-poster').getBoundingClientRect();
+    const title = section.querySelector('.overview-summary h2').getBoundingClientRect();
+    return Math.round(title.top - poster.bottom);
+  });
+  expect(spacing).toBeGreaterThanOrEqual(56);
+});
+
+test('tablet overview stacks the poster above copy without overlap', async ({ page }) => {
+  for (const width of [768, 1024]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto('/');
+    const geometry = await page.locator('.overview-poster-brief').evaluate((section) => {
+      const poster = section.querySelector('.overview-poster').getBoundingClientRect();
+      const summary = section.querySelector('.overview-summary').getBoundingClientRect();
+      return {
+        columns: getComputedStyle(section).gridTemplateColumns.split(' ').length,
+        gap: Math.round(summary.top - poster.bottom),
+        overlap: !(poster.bottom <= summary.top || summary.bottom <= poster.top || poster.right <= summary.left || summary.right <= poster.left),
+      };
+    });
+    expect(geometry.columns).toBe(1);
+    expect(geometry.overlap).toBeFalsy();
+    expect(geometry.gap).toBeGreaterThanOrEqual(48);
+  }
+});
+
+test('mobile hero characters become a subdued background layer while tablet keeps a separate zone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const mobile = await page.locator('.hero-kv').evaluate((hero) => {
+    const copy = hero.querySelector('.hero-copy');
+    const copyBox = copy.getBoundingClientRect();
+    const characters = [...hero.querySelectorAll('.hero-character')];
+    const boxes = characters.map((item) => item.getBoundingClientRect());
+    return {
+      overlap: boxes.some((box) => !(box.bottom <= copyBox.top || box.top >= copyBox.bottom || box.right <= copyBox.left || box.left >= copyBox.right)),
+      opacities: characters.map((item) => Number.parseFloat(getComputedStyle(item).opacity)),
+      characterZ: Number(getComputedStyle(characters[0]).zIndex),
+      copyZ: Number(getComputedStyle(copy).zIndex),
+      heroHeight: Math.round(hero.getBoundingClientRect().height),
+      widthRatios: boxes.map((box) => box.width / innerWidth),
+    };
+  });
+  expect(mobile.overlap).toBeTruthy();
+  expect(Math.max(...mobile.opacities)).toBeLessThanOrEqual(.4);
+  expect(mobile.characterZ).toBeLessThan(mobile.copyZ);
+  expect(mobile.heroHeight).toBeLessThanOrEqual(940);
+  expect(mobile.widthRatios[0]).toBeLessThanOrEqual(.57);
+  expect(mobile.widthRatios[1]).toBeLessThanOrEqual(.48);
+  expect(mobile.widthRatios[2]).toBeLessThanOrEqual(.26);
+
+  await page.setViewportSize({ width: 768, height: 1000 });
+  await page.goto('/');
+  const tablet = await page.locator('.hero-kv').evaluate((hero) => {
+    const copy = hero.querySelector('.hero-copy');
+    const copyBox = copy.getBoundingClientRect();
+    const characters = [...hero.querySelectorAll('.hero-character')];
+    const boxes = characters.map((item) => item.getBoundingClientRect());
+    return {
+      overlap: boxes.some((box) => !(box.bottom <= copyBox.top || box.top >= copyBox.bottom || box.right <= copyBox.left || box.left >= copyBox.right)),
+      maxOpacity: Math.max(...characters.map((item) => Number.parseFloat(getComputedStyle(item).opacity))),
+      characterZ: Number(getComputedStyle(characters[0]).zIndex),
+      copyZ: Number(getComputedStyle(copy).zIndex),
+    };
+  });
+  expect(tablet.overlap).toBeTruthy();
+  expect(tablet.maxOpacity).toBeLessThanOrEqual(.22);
+  expect(tablet.characterZ).toBeLessThan(tablet.copyZ);
+});
+
+test('mobile yellow character is on the left and the latest guideline copy is complete', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const placement = await page.locator('.hero-kv').evaluate((hero) => {
+    const yellow = hero.querySelector('.hero-character-yellow').getBoundingClientRect();
+    return { center: yellow.left + yellow.width / 2, viewportCenter: innerWidth / 2 };
+  });
+  expect(placement.center).toBeLessThan(placement.viewportCenter);
+  await page.goto('/guide.html');
+  await expect(page.getByText('고용24 내부 데이터 등 비공개 정보는 실제 데이터와 유사한 형태의 합성데이터로 구현 가능')).toBeVisible();
+  await expect(page.locator('.guide-notes > li')).toHaveCount(10);
+});
+
+test('1024 tablet also lifts subdued characters behind the copy', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 1000 });
+  await page.goto('/');
+  const tablet = await page.locator('.hero-kv').evaluate((hero) => {
+    const copy = hero.querySelector('.hero-copy');
+    const copyBox = copy.getBoundingClientRect();
+    const characters = [...hero.querySelectorAll('.hero-character')];
+    const boxes = characters.map((item) => item.getBoundingClientRect());
+    return {
+      overlap: boxes.some((box) => !(box.bottom <= copyBox.top || box.top >= copyBox.bottom || box.right <= copyBox.left || box.left >= copyBox.right)),
+      maxOpacity: Math.max(...characters.map((item) => Number.parseFloat(getComputedStyle(item).opacity))),
+    };
+  });
+  expect(tablet.overlap).toBeTruthy();
+  expect(tablet.maxOpacity).toBeLessThanOrEqual(.22);
+});
+
+test('the second-section fade resolves to a low-saturation blue rather than violet', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const gradient = await page.locator('.overview-section').evaluate((el) => getComputedStyle(el).backgroundImage);
+  expect(gradient).toContain('rgb(64, 86, 145)');
+  expect(gradient).not.toContain('rgb(90, 85, 210)');
+});
+
+test('mobile guidelines keep every card and text block inside the viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/guide.html');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+  const cards = page.locator('.guide-content .content-card');
+  await expect(cards).toHaveCount(9);
+  for (const card of await cards.all()) {
+    const bounds = await card.boundingBox();
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
+    const overflow = await card.evaluate((el) => [...el.querySelectorAll('h2,p,li,dd,a')]
+      .filter((node) => !node.closest('.guide-table-wrap'))
+      .some((node) => node.scrollWidth > node.clientWidth + 1));
+    expect(overflow).toBeFalsy();
+  }
+  for (const wrap of await page.locator('.guide-table-wrap').all()) {
+    const bounds = await wrap.boundingBox();
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
+    expect(await wrap.evaluate((el) => getComputedStyle(el).overflowX)).toBe('auto');
+  }
 });
 
 test('winner navigation and direct route stay hidden before release', async ({ page }) => {

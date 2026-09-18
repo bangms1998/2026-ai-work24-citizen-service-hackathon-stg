@@ -20,14 +20,38 @@ window.addEventListener('resize',()=>{if(window.innerWidth>980)setMenu(false)});
 
 const button = document.querySelector('#applyButton');
 const status = document.querySelector('#applyStatus');
-const labels = { PREOPEN: '접수 준비 중', OPEN: '공모전 접수하기', CLOSED: '접수 마감' };
+const now = new Date();
+const resolvedContestState = (date) => date < new Date(siteConfig.opensAt)
+  ? 'SCHEDULED'
+  : date <= new Date(siteConfig.closesAt) ? 'OPEN' : 'CLOSED';
+const applicationState = siteConfig.state === 'OPEN' ? 'OPEN' : resolvedContestState(now);
+const labels = { SCHEDULED: '접수하기', OPEN: '접수하기', CLOSED: '접수하기' };
+const applicationReady = applicationState === 'OPEN' && Boolean(siteConfig.formUrl);
 if (button) {
-  button.textContent = labels[siteConfig.state] || '접수 상태 확인';
-  const ready = siteConfig.state === 'OPEN' && Boolean(siteConfig.formUrl);
-  button.disabled = !ready;
-  if (ready) button.addEventListener('click', () => window.open(siteConfig.formUrl, '_blank', 'noopener,noreferrer'));
+  button.textContent = labels[applicationState];
+  button.disabled = !applicationReady;
+  if (applicationReady) button.addEventListener('click', () => window.open(siteConfig.formUrl, '_blank', 'noopener,noreferrer'));
 }
-if (status) status.textContent = siteConfig.state === 'OPEN' && siteConfig.formUrl ? '접수기간 · 2026.09.21(월) — 10.13(화) 18:00' : '접수 예정 · 2026.09.21(월) — 10.13(화) 18:00';
+if (status) status.textContent = applicationState === 'OPEN'
+  ? '접수 중 · 2026.09.21(월) — 10.13(화) 18:00'
+  : applicationState === 'CLOSED'
+    ? '접수가 마감되었습니다.'
+    : '접수 예정 · 2026.09.21(월) — 10.13(화) 18:00';
+
+const applyFormLink = document.querySelector('#applyFormLink');
+if (applyFormLink) {
+  applyFormLink.textContent = labels[applicationState];
+  if (applicationReady) {
+    applyFormLink.href = siteConfig.formUrl;
+    applyFormLink.target = '_blank';
+    applyFormLink.rel = 'noopener noreferrer';
+    applyFormLink.removeAttribute('aria-disabled');
+  } else {
+    applyFormLink.removeAttribute('href');
+    applyFormLink.setAttribute('aria-disabled', 'true');
+    applyFormLink.addEventListener('click', (event) => event.preventDefault());
+  }
+}
 
 const resourcesDownload = document.querySelector('#resourcesDownload');
 if (resourcesDownload) {
@@ -43,37 +67,47 @@ if (resourcesDownload) {
 }
 
 const inquiryForm = document.querySelector('#inquiryForm');
-const inquiryReview = document.querySelector('#inquiryReview');
-const inquiryMailLink = document.querySelector('#inquiryMailLink');
-const inquiryReviewTitle = document.querySelector('#inquiryReviewTitle');
-const inquiryReviewEmail = document.querySelector('#inquiryReviewEmail');
+const inquiryResult = document.querySelector('#inquiryResult');
+const inquiryStartedAt = Date.now();
 
-inquiryForm?.addEventListener('submit', (event) => {
+inquiryForm?.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (!inquiryForm.reportValidity()) return;
   const data = new FormData(inquiryForm);
-  const type = String(data.get('type')).trim();
-  const name = String(data.get('name')).trim();
-  const email = String(data.get('email')).trim();
-  const title = String(data.get('title')).trim();
-  const message = String(data.get('message')).trim();
-  const subject = `[고용24 공모전 문의] ${type} · ${title}`;
-  const body = [`문의 유형: ${type}`, `이름: ${name}`, `회신 이메일: ${email}`, '', '문의 내용', message].join('\n');
-  inquiryMailLink.href = `mailto:bangms1998@stunning.kr?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  inquiryReviewTitle.textContent = title;
-  inquiryReviewEmail.textContent = email;
-  inquiryReview.hidden = false;
-  inquiryMailLink.hidden = false;
-  inquiryReview.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-  inquiryMailLink.focus({ preventScroll: true });
+  const submitButton = inquiryForm.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  submitButton.textContent = '전송 중…';
+  inquiryResult.hidden = false;
+  inquiryResult.textContent = '문의를 전송하고 있습니다.';
+  try {
+    const response = await fetch('/api/inquiry', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        type: data.get('type'), name: data.get('name'), email: data.get('email'),
+        title: data.get('title'), message: data.get('message'), website: data.get('website'),
+        consent: data.get('consent') === 'on', startedAt: inquiryStartedAt,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.ok !== true) throw new Error(result.error || '문의 전송을 완료하지 못했습니다.');
+    inquiryResult.textContent = `문의가 전송되었습니다. 문의번호 ${result.receipt} · 운영사무국에서 입력한 이메일로 답변드립니다.`;
+    inquiryForm.reset();
+  } catch (error) {
+    inquiryResult.textContent = `문의 전송에 실패했습니다. ${error.message} 계속 실패하면 gongmo@stunning.kr로 보내 주세요.`;
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = '문의 전송';
+    inquiryResult.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    inquiryResult.focus({ preventScroll: true });
+  }
 });
 
 const scheduleEvents = [...document.querySelectorAll('.schedule-event')];
-const scheduleCalendar = document.querySelector('#scheduleCalendar');
 const kstDateKey = (date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
 const todayKey = kstDateKey(new Date());
 
-if (scheduleEvents.length && scheduleCalendar) {
+if (scheduleEvents.length) {
   const events = scheduleEvents.map((element) => ({ element, id: element.dataset.event, start: element.dataset.start, end: element.dataset.end }));
   let nextEvent = null;
   events.forEach((event) => {
@@ -97,115 +131,6 @@ if (scheduleEvents.length && scheduleCalendar) {
     const state = nextEvent.element.querySelector('.schedule-state');
     if (state) state.textContent = '다음 일정';
   }
-
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-  const eventNames = new Map(events.map((event) => [event.id, event.element.querySelector('h3').textContent]));
-  const shortEventNames = new Map([
-    ['apply', '접수'],
-    ['review', '서류 심사'],
-    ['result', '결과·OT'],
-    ['develop', '서비스 개발'],
-    ['verify', '기능 심사'],
-    ['finalist', '본선팀 발표'],
-    ['ceremony', '본선·시상'],
-  ]);
-  const months = [8, 9, 10];
-  const calendarTabs = document.createElement('div');
-  calendarTabs.className = 'calendar-tabs';
-  calendarTabs.setAttribute('role', 'tablist');
-  calendarTabs.setAttribute('aria-label', '공모일정 월 선택');
-  const calendarPanels = document.createElement('div');
-  calendarPanels.className = 'calendar-panels';
-
-  const todayMonth = Number(todayKey.slice(5, 7));
-  const initialMonth = todayMonth >= 9 && todayMonth <= 11
-    ? todayMonth
-    : Number((nextEvent?.start || (todayKey < '2026-09-01' ? '2026-09-01' : '2026-11-01')).slice(5, 7));
-
-  const selectMonth = (monthNumber, focusTab = false) => {
-    calendarTabs.querySelectorAll('[role="tab"]').forEach((tab) => {
-      const selected = Number(tab.dataset.month) === monthNumber;
-      tab.setAttribute('aria-selected', String(selected));
-      tab.tabIndex = selected ? 0 : -1;
-      if (selected && focusTab) tab.focus();
-    });
-    calendarPanels.querySelectorAll('[role="tabpanel"]').forEach((panel) => {
-      panel.hidden = Number(panel.dataset.month) !== monthNumber;
-    });
-  };
-
-  months.forEach((monthIndex) => {
-    const monthNumber = monthIndex + 1;
-    const tab = document.createElement('button');
-    tab.type = 'button';
-    tab.className = 'calendar-tab';
-    tab.id = `calendar-tab-${monthNumber}`;
-    tab.dataset.month = String(monthNumber);
-    tab.setAttribute('role', 'tab');
-    tab.setAttribute('aria-controls', `calendar-panel-${monthNumber}`);
-    tab.innerHTML = `<span>2026</span><b>${monthNumber}월</b>`;
-    tab.addEventListener('click', () => selectMonth(monthNumber));
-    tab.addEventListener('keydown', (event) => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      event.preventDefault();
-      const current = months.indexOf(monthIndex);
-      const target = event.key === 'Home' ? 0 : event.key === 'End' ? months.length - 1 : (current + (event.key === 'ArrowRight' ? 1 : -1) + months.length) % months.length;
-      selectMonth(months[target] + 1, true);
-    });
-    calendarTabs.append(tab);
-
-    const firstDay = new Date(Date.UTC(2026, monthIndex, 1)).getUTCDay();
-    const daysInMonth = new Date(Date.UTC(2026, monthIndex + 1, 0)).getUTCDate();
-    const cellCount = Math.ceil((firstDay + daysInMonth) / 7) * 7;
-    const month = document.createElement('section');
-    month.className = 'calendar-month';
-    month.id = `calendar-panel-${monthNumber}`;
-    month.dataset.month = String(monthNumber);
-    month.setAttribute('role', 'tabpanel');
-    month.setAttribute('aria-labelledby', tab.id);
-    month.innerHTML = `<header><div><span>2026년</span><h3>${monthNumber}월 공모일정</h3></div><p><i></i> 일정 구간 <i class="today-key"></i> 오늘</p></header><div class="calendar-weekdays">${weekdays.map((day) => `<span>${day}</span>`).join('')}</div><div class="calendar-days"></div>`;
-    const grid = month.querySelector('.calendar-days');
-    for (let index = 0; index < cellCount; index += 1) {
-      const day = index - firstDay + 1;
-      const cell = document.createElement(day > 0 && day <= daysInMonth ? 'time' : 'span');
-      cell.className = 'calendar-day';
-      if (day > 0 && day <= daysInMonth) {
-        const dateKey = `2026-${String(monthNumber).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const matched = events.find((event) => dateKey >= event.start && dateKey <= event.end);
-        const weekday = index % 7;
-        cell.dateTime = dateKey;
-        cell.dataset.date = dateKey;
-        cell.innerHTML = `<b>${day}</b>`;
-        if (matched) {
-          const rangeStarts = dateKey === matched.start || day === 1 || weekday === 0;
-          const rangeEnds = dateKey === matched.end || day === daysInMonth || weekday === 6;
-          cell.classList.add('has-event', `event-${matched.id}`);
-          if (rangeStarts) cell.classList.add('range-start');
-          if (rangeEnds) cell.classList.add('range-end');
-          cell.dataset.event = matched.id;
-          cell.setAttribute('aria-label', `${monthNumber}월 ${day}일, ${eventNames.get(matched.id)}`);
-          const range = document.createElement('span');
-          range.className = 'calendar-event-range';
-          range.setAttribute('aria-hidden', 'true');
-          if (rangeStarts) range.textContent = shortEventNames.get(matched.id) || eventNames.get(matched.id);
-          cell.append(range);
-          if (matched.element.classList.contains('is-current')) cell.classList.add('is-current-event');
-        }
-        if (dateKey === todayKey) {
-          cell.classList.add('is-today');
-          cell.setAttribute('aria-current', 'date');
-        }
-      } else {
-        cell.classList.add('is-empty');
-        cell.setAttribute('aria-hidden', 'true');
-      }
-      grid.append(cell);
-    }
-    calendarPanels.append(month);
-  });
-
-  scheduleCalendar.append(calendarTabs, calendarPanels);
-  selectMonth(Math.min(11, Math.max(9, initialMonth)));
 }
 
 const toTop = document.querySelector('.to-top');

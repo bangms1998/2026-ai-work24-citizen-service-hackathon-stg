@@ -1,14 +1,7 @@
-const KEY='work24-admin-prototype-v3';
+const KEY='work24-admin-prototype-v4';
 const defaults={
-  notices:[
-    {id:2,kind:'공지',title:'고용24 AI 공모전 테스트사이트 안내',date:'2026-08-27',bodyBefore:'현재 페이지는 기능 검수를 위한 TEST 사이트입니다.',bodyAfter:'최종 내용은 확정 후 게시됩니다.',imageData:'',imageName:'',imageAlt:'',visible:true},
-    {id:1,kind:'예정',title:'최종 공모요강은 확정 후 게시됩니다',date:'2026-08-27',bodyBefore:'공모요강은 [확인 필요]입니다.',bodyAfter:'',imageData:'',imageName:'',imageAlt:'',visible:true}
-  ],
-  faqs:[
-    {id:1,question:'접수는 어디에서 하나요?',answer:'접수기간이 시작되면 메인 화면에서 승인된 Google Form으로 이동합니다.'},
-    {id:2,question:'회원가입이 필요한가요?',answer:'사이트 별도 회원가입은 없으며 파일 업로드 정책은 확인 필요입니다.'},
-    {id:3,question:'제출 후 수정할 수 있나요?',answer:'응답 수정 허용 여부와 기간은 확인 필요입니다.'}
-  ],
+  notices:[],
+  faqs:[],
   popup:{enabled:false,title:'공모전 안내',body:'현재 공모요강은 최종 확정 전입니다.',start:'',end:'',imageData:'',imageName:'',imageAlt:''},
   versions:[],draft:null
 };

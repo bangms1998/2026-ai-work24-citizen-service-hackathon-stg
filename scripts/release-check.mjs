@@ -17,18 +17,23 @@ const formUrl = config.match(/formUrl:\s*['"]([^'"]*)/)?.[1] || '';
 
 if (mode === 'staging') {
   const failures = [];
-  if (state !== 'PREOPEN' || formUrl) failures.push('staging intake must be PREOPEN with an empty Form URL');
+  if (!['AUTO', 'OPEN'].includes(state) || !/^https:\/\//.test(formUrl)) failures.push('staging intake must use the approved HTTPS Form URL with scheduled or open lifecycle state');
   const apply = await read(source('apply.html'));
   const inquiry = await read(source('inquiry.html'));
   const inquiryHasForm = /<form\b/i.test(inquiry);
-  const inquiryIsSafeEmailHandoff = inquiryHasForm
+  const relayPath = new URL('../functions/api/inquiry.js', import.meta.url);
+  const relay = await read(relayPath);
+  const inquiryIsApprovedServerRelay = inquiryHasForm
     && /id="inquiryForm"/.test(inquiry)
-    && /id="inquiryMailLink"[^>]*href="mailto:/.test(inquiry)
-    && /사이트에 저장되지 않습니다/.test(inquiry)
+    && /id="inquiryConsent"/.test(inquiry)
+    && /6개월/.test(inquiry)
     && /inquiryForm/.test(app)
-    && /encodeURIComponent/.test(app)
-    && !/fetch\s*\(|localStorage|XMLHttpRequest|navigator\.sendBeacon/.test(app);
-  if (/<form\b/i.test(apply) || (inquiryHasForm && !inquiryIsSafeEmailHandoff)) failures.push('public pre-open routes must not collect or store data');
+    && /fetch\(['"]\/api\/inquiry['"]/.test(app)
+    && /INQUIRY_RELAY_URL/.test(relay)
+    && /INQUIRY_RELAY_TOKEN/.test(relay)
+    && /allowedOrigin/.test(relay)
+    && !/localStorage|XMLHttpRequest|navigator\.sendBeacon/.test(app);
+  if (/<form\b/i.test(apply) || (inquiryHasForm && !inquiryIsApprovedServerRelay)) failures.push('public pre-open routes must keep application closed and use the approved inquiry relay');
   if (!(await exists(source('_headers')))) failures.push('security headers are missing');
   if (await exists(built('admin.html')) || await exists(built('admin.js'))) failures.push('browser-only admin leaked into the public build');
   if (/stunning-work24-stg\.pages\.dev/.test(allPublic)) failures.push('public source hardcodes the staging hostname');
@@ -38,7 +43,8 @@ if (mode === 'staging') {
     process.exit(1);
   }
   console.log('STAGING_READY=PASS');
-  console.log('- PREOPEN fail-closed intake');
+  console.log('- approved application intake follows the configured lifecycle');
+  console.log('- approved inquiry mail relay contract');
   console.log('- public admin excluded');
   console.log('- hostname-independent routes');
   console.log('- security headers present');
@@ -51,7 +57,7 @@ if (mode !== 'production') {
 }
 
 const blockers = [];
-if (state !== 'OPEN' || !/^https:\/\//.test(formUrl)) blockers.push('approved Form URL and OPEN state');
+if (!['AUTO', 'OPEN'].includes(state) || !/^https:\/\//.test(formUrl)) blockers.push('approved Form URL and scheduled/open state');
 if (/\[미정\]|\[확인 필요\]|샘플/.test(allPublic)) blockers.push('placeholder content');
 if (!(await exists(source('privacy.html')))) blockers.push('approved privacy notice');
 if (/운영기관\s*\[확인 필요\]/.test(allPublic)) blockers.push('approved operator identity and contact');
