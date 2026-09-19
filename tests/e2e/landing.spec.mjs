@@ -737,6 +737,23 @@ test('the second-section fade resolves to a low-saturation blue rather than viol
   expect(gradient).not.toContain('rgb(90, 85, 210)');
 });
 
+test('guideline card number labels stay close to their titles at every breakpoint', async ({ page }) => {
+  for (const [width, height] of [[390, 844], [768, 1000], [1440, 1000]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/guide.html');
+    const gaps = await page.locator('.guide-content .content-card').evaluateAll((cards) => cards.map((card) => {
+      const tag = card.querySelector('.tag').getBoundingClientRect();
+      const title = card.querySelector('h2').getBoundingClientRect();
+      return title.top - tag.bottom;
+    }));
+    expect(gaps).toHaveLength(9);
+    for (const gap of gaps) {
+      expect(gap).toBeGreaterThanOrEqual(18);
+      expect(gap).toBeLessThanOrEqual(30);
+    }
+  }
+});
+
 test('mobile guidelines keep every card and text block inside the viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/guide.html');
