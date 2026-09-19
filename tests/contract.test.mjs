@@ -51,15 +51,25 @@ test('public operational copy exposes the approved guideline download', async ()
 });
 
 test('every public page declares the approved favicon and social sharing image', async () => {
-  const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'apply.html'];
-  for (const page of pages) {
+  const pages = new Map([
+    ['index.html', '/'],
+    ['guide.html', '/guide.html'],
+    ['notice.html', '/notice.html'],
+    ['faq.html', '/faq.html'],
+    ['inquiry.html', '/inquiry.html'],
+    ['apply.html', '/apply.html'],
+  ]);
+  const socialHost = 'https://www.xn--299alkwa683hrtfsfp2mn8g3zd53kbtag2cdzeds0aqoj3nl9jq.com';
+  for (const [page, path] of pages) {
     const html = await read(page);
     assert.match(html, /rel="icon"[^>]*assets\/meta\/favicon-32x32\.png/);
     assert.match(html, /rel="apple-touch-icon"[^>]*assets\/meta\/apple-touch-icon\.png/);
-    assert.match(html, /property="og:image" content="https:\/\/www\.국민참여고용서비스발굴온라인해커톤\.com\/assets\/meta\/og-image-1200x630\.png"/);
+    assert.ok(html.includes(`<meta property="og:url" content="${socialHost}${path}">`));
+    assert.ok(html.includes(`<meta property="og:image" content="${socialHost}/assets/meta/og-image-1200x630.png?v=20260919">`));
     assert.match(html, /property="og:image:width" content="1200"/);
     assert.match(html, /property="og:image:height" content="630"/);
     assert.match(html, /name="twitter:card" content="summary_large_image"/);
+    assert.ok(html.includes(`<meta name="twitter:image" content="${socialHost}/assets/meta/og-image-1200x630.png?v=20260919">`));
   }
   assert.match(await read('404.html'), /rel="icon"[^>]*assets\/meta\/favicon-32x32\.png/);
   for (const asset of ['favicon.ico', 'favicon-16x16.png', 'favicon-32x32.png', 'apple-touch-icon.png', 'favicon-512x512.png', 'og-image-1200x630.png']) {
