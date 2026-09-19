@@ -50,6 +50,30 @@ test('hero revision enlarges the white label, preserves the requested lead break
   }
 });
 
+test('tablet and mobile keep the navigation-to-title gap aligned with desktop', async ({ page }) => {
+  const gaps = new Map();
+  for (const [width, height] of [[390, 844], [768, 1000], [1024, 900], [1440, 1000]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/');
+    const geometry = await page.locator('.hero-kv').evaluate((hero) => {
+      const header = document.querySelector('.site-header').getBoundingClientRect();
+      const label = hero.querySelector('.hero-label').getBoundingClientRect();
+      return {
+        gap: label.top - header.bottom,
+        overlap: label.top < header.bottom,
+        alignItems: getComputedStyle(hero).alignItems,
+      };
+    });
+    gaps.set(width, geometry.gap);
+    expect(geometry.overlap).toBeFalsy();
+    expect(geometry.gap).toBeGreaterThanOrEqual(48);
+    expect(geometry.gap).toBeLessThanOrEqual(60);
+    if (width < 1440) expect(geometry.alignItems).toBe('flex-start');
+  }
+  const desktopGap = gaps.get(1440);
+  for (const width of [390, 768, 1024]) expect(Math.abs(gaps.get(width) - desktopGap)).toBeLessThanOrEqual(6);
+});
+
 test('application guide remains operational without collecting data on the site', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
