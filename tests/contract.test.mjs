@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { access, readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 
 const read = (name) => readFile(new URL(`../src/${name}`, import.meta.url), 'utf8');
 
@@ -48,6 +49,11 @@ test('public operational copy exposes the approved guideline download', async ()
   assert.match(html, /id="resourcesDownload"[^>]*>요강 다운로드/);
   assert.match(config, /state:\s*['"]OPEN['"]/);
   assert.match(config, /resourcesUrl:\s*['"]assets\/downloads\/2026_고용24_국민참여_AI_고용서비스_발굴_온라인_해커톤_요강\.pdf['"]/);
+});
+
+test('guideline download is the owner-supplied latest seven-page PDF', async () => {
+  const pdf = await readFile(new URL('../src/assets/downloads/2026_고용24_국민참여_AI_고용서비스_발굴_온라인_해커톤_요강.pdf', import.meta.url));
+  assert.equal(createHash('sha256').update(pdf).digest('hex'), '50fd483e484d7f9965417d832c0934c4243b019a947fcc6d33c344e58fea95b3');
 });
 
 test('every public page declares the approved favicon and social sharing image', async () => {
