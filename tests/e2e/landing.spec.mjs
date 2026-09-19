@@ -12,9 +12,42 @@ test('application remains open before the official opening by owner-approved ove
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('고용24');
   await expect(page.getByRole('button', { name: '접수하기' })).toBeEnabled();
-  await expect(page.locator('#applyStatus')).toContainText('접수 중');
+  await expect(page.locator('#applyStatus')).toHaveCount(0);
   await expect(page.locator('.hero-date span')).toHaveText('접수기간');
   await expect(page.getByRole('link', { name: '요강 다운로드' })).toHaveAttribute('href', /2026_고용24_국민참여_AI_고용서비스_발굴_온라인_해커톤_요강\.pdf/);
+});
+
+test('hero revision enlarges the white label, preserves the requested lead break and moves the yellow character right', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto('/');
+    const metrics = await page.locator('.hero-kv').evaluate((hero) => {
+      const label = hero.querySelector('.hero-label');
+      const title = hero.querySelector('h1 span:not(.visually-hidden)');
+      const lead = hero.querySelector('.hero-lead');
+      const yellow = hero.querySelector('.hero-character-yellow').getBoundingClientRect();
+      const textWidth = (element) => {
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        return range.getBoundingClientRect().width;
+      };
+      return {
+        labelColor: getComputedStyle(label).color,
+        labelWidth: textWidth(label),
+        titleWidth: textWidth(title),
+        leadBreaks: lead.querySelectorAll('br').length,
+        leadText: lead.innerText,
+        yellowLeft: yellow.left,
+      };
+    });
+    expect(metrics.labelColor).toBe('rgb(255, 255, 255)');
+    expect(Math.abs(metrics.labelWidth - metrics.titleWidth)).toBeLessThanOrEqual(width === 390 ? 8 : 18);
+    expect(metrics.leadBreaks).toBe(1);
+    expect(metrics.leadText).toContain('AI와 함께하는 국민 체감 고용서비스 발굴\n기획안으로 접수하고, 선정팀은 2주간 온라인에서 직접 MVP를 개발합니다.');
+    expect(metrics.yellowLeft).toBeGreaterThanOrEqual(width === 390 ? 28 : 138);
+    await expect(page.locator('#applyStatus')).toHaveCount(0);
+  }
 });
 
 test('application guide remains operational without collecting data on the site', async ({ page }) => {

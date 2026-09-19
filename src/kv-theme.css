@@ -12,10 +12,10 @@ body{font-family:"Pretendard Variable",Pretendard,"Noto Sans KR","Apple SD Gothi
 .hero-kv .hero-character{position:absolute;z-index:2;height:auto;filter:none;pointer-events:none;transform-origin:50% 72%;will-change:transform}
 .hero-kv .hero-character-laptop{right:max(18px,calc((100vw - 1460px)/2));bottom:34px;width:min(27vw,370px);animation:kvLaptopFloat 6.8s ease-in-out infinite}
 .hero-kv .hero-character-bag{left:max(24px,calc((100vw - 1480px)/2));bottom:36px;width:min(21vw,286px);animation:kvBagSway 7.4s ease-in-out infinite}
-.hero-kv .hero-character-yellow{left:max(90px,calc((100vw - 1260px)/2));top:92px;width:min(12vw,164px);animation:kvYellowFloat 5.8s ease-in-out infinite}
+.hero-kv .hero-character-yellow{left:max(118px,calc((100vw - 1260px)/2 + 28px));top:92px;width:min(12vw,164px);animation:kvYellowFloat 5.8s ease-in-out infinite}
 .hero-kv .hero-shade{position:absolute;z-index:1;inset:0;background:linear-gradient(90deg,rgba(24,23,106,.46),rgba(48,43,147,.16) 45%,rgba(71,64,183,.08)),linear-gradient(180deg,rgba(22,21,95,.12) 0%,transparent 66%,rgba(241,239,255,.9) 100%)}
 .hero-kv .hero-copy{position:relative;z-index:3;width:min(760px,58vw);color:#fff;text-align:center;text-shadow:0 2px 20px rgba(24,20,103,.16)}
-.hero-kv .hero-label{margin:0 0 22px;font-family:SBAggroM,"Wanted Sans Variable",sans-serif;font-size:clamp(17px,1.5vw,22px);line-height:1.35;letter-spacing:-.035em;color:rgba(255,255,255,.88)}
+.hero-kv .hero-label{margin:0 0 22px;font-family:SBAggroM,"Wanted Sans Variable",sans-serif;font-size:clamp(30px,3.6vw,52px);line-height:1.35;letter-spacing:-.035em;color:#fff}
 .hero-kv h1{margin:0;font-family:SBAggroB,"Wanted Sans Variable",sans-serif;font-size:clamp(50px,6.1vw,88px);font-weight:700;line-height:1.18;letter-spacing:-.055em;text-wrap:balance}
 .hero-kv h1 span{color:#fff}.hero-kv h1 br{display:block}
 .hero-kv .hero-lead{margin:24px 0 0;font-family:SBAggroL,"Wanted Sans Variable",sans-serif;font-size:clamp(16px,1.25vw,20px);line-height:1.7;color:rgba(255,255,255,.82)}
@@ -38,7 +38,7 @@ body{font-family:"Pretendard Variable",Pretendard,"Noto Sans KR","Apple SD Gothi
 .sub-hero{position:relative;min-height:350px;padding-top:154px;background:linear-gradient(125deg,#252575,#6e64dc);isolation:isolate}.sub-hero:before{content:"";position:absolute;z-index:-1;inset:0;background:url('assets/kv/pattern-overlay.webp') right center/760px auto no-repeat;opacity:.6}.sub-hero:after{width:420px;height:420px;right:-60px;top:-120px;background:radial-gradient(circle,rgba(255,138,195,.25),transparent 68%)}.sub-hero h1{font-family:SBAggroM,"Wanted Sans Variable",sans-serif;font-weight:500;letter-spacing:-.05em}.sub-hero p{color:rgba(255,255,255,.78)}
 @media(max-width:1100px){.hero-kv .hero-copy{width:66vw}.hero-kv .hero-character-laptop{right:-28px;width:31vw}.hero-kv .hero-character-bag{left:-18px;width:24vw}.hero-kv .hero-character-yellow{left:36px;width:14vw}.feature-card:nth-child(n){grid-column:span 4}.overview-poster-brief{gap:52px}}
 @media(min-width:801px) and (max-width:1100px){.hero-kv .hero-character{opacity:.2}.hero-kv .hero-character-laptop{top:350px;right:-2%;bottom:auto;width:34vw}.hero-kv .hero-character-bag{top:490px;left:-2%;bottom:auto;width:27vw}.hero-kv .hero-character-yellow{top:175px;left:4%;bottom:auto;width:15vw}}
-@media(max-width:800px){.hero-kv{min-height:850px;align-items:flex-start;padding:124px 24px 54px}.hero-kv .hero-copy{width:100%;text-align:center}.hero-kv .hero-label{margin-bottom:16px}.hero-kv h1{font-size:clamp(42px,10.7vw,60px);line-height:1.18}.hero-kv .hero-lead{font-family:"Wanted Sans Variable",sans-serif;font-size:16px}.hero-date{margin:20px auto 0}.hero-kv .hero-actions{justify-content:center}.hero-kv .status{text-align:center}.hero-kv .hero-character-laptop{right:-40px;bottom:18px;width:min(48vw,320px)}.hero-kv .hero-character-bag{left:-24px;bottom:30px;width:min(38vw,245px)}.hero-kv .hero-character-yellow{left:18px;top:94px;width:min(20vw,120px)}.hero-kv .hero-shade{background:linear-gradient(180deg,rgba(29,28,116,.58) 0%,rgba(62,55,170,.28) 58%,rgba(241,239,255,.92) 100%)}.hero-kv .hero-pattern{width:100%;opacity:.45}.feature-grid{grid-template-columns:1fr}.feature-card:nth-child(n){grid-column:1}.feature-card{min-height:0}.feature-card .feature-visual{height:230px}.organizer-logos{flex-wrap:wrap}.support-card>img{opacity:.3}.sub-hero{min-height:300px;padding:130px 24px 70px}}
+@media(max-width:800px){.hero-kv{min-height:850px;align-items:flex-start;padding:124px 24px 54px}.hero-kv .hero-copy{width:100%;text-align:center}.hero-kv .hero-label{margin-bottom:16px;font-size:36px}.hero-kv h1{font-size:clamp(42px,10.7vw,60px);line-height:1.18}.hero-kv .hero-lead{font-family:"Wanted Sans Variable",sans-serif;font-size:16px}.hero-date{margin:20px auto 0}.hero-kv .hero-actions{justify-content:center}.hero-kv .status{text-align:center}.hero-kv .hero-character-laptop{right:-40px;bottom:18px;width:min(48vw,320px)}.hero-kv .hero-character-bag{left:-24px;bottom:30px;width:min(38vw,245px)}.hero-kv .hero-character-yellow{left:18px;top:94px;width:min(20vw,120px)}.hero-kv .hero-shade{background:linear-gradient(180deg,rgba(29,28,116,.58) 0%,rgba(62,55,170,.28) 58%,rgba(241,239,255,.92) 100%)}.hero-kv .hero-pattern{width:100%;opacity:.45}.feature-grid{grid-template-columns:1fr}.feature-card:nth-child(n){grid-column:1}.feature-card{min-height:0}.feature-card .feature-visual{height:230px}.organizer-logos{flex-wrap:wrap}.support-card>img{opacity:.3}.sub-hero{min-height:300px;padding:130px 24px 70px}}
 @media(max-width:560px){.hero-kv{min-height:810px;padding:110px 20px 44px}.hero-kv h1{font-size:41px}.hero-kv .hero-lead br{display:none}.hero-date{gap:8px;padding:9px 12px}.hero-date strong{font-size:12px}.hero-kv .hero-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:22px}.hero-kv .glass-action{width:100%;justify-content:center}.hero-kv .status{font-size:12px}.hero-kv .hero-character-laptop{right:-48px;bottom:28px;width:53vw}.hero-kv .hero-character-bag{left:-32px;bottom:42px;width:42vw}.hero-kv .hero-character-yellow{left:6px;top:86px;width:21vw}.overview-poster{border-radius:20px}.section-heading h2{font-size:40px}.feature-card{border-radius:22px}.site-footer .organizer-logos img{height:22px}.sub-hero h1{font-size:44px}}
 .guide-content{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.guide-content .content-card{margin:0}.guide-content ul,.guide-content ol{display:grid;gap:10px;padding-left:21px;color:#555466}.guide-facts{display:grid;gap:0;margin:30px 0 0}.guide-facts>div,.guide-prizes p{display:grid;grid-template-columns:130px 1fr;gap:24px;margin:0;padding:16px 0;border-top:1px solid #deddeb}.guide-facts dt,.guide-prizes strong{color:#6a67a1;font-size:13px}.guide-facts dd,.guide-prizes span{margin:0;color:var(--kv-ink);font-weight:650}.guide-prizes{margin:24px 0}.approval-note{padding:18px!important;border-color:#d9d6fa!important;background:#f5f3ff!important;color:#4f4b82!important}
 @media(max-width:800px){.guide-content{grid-template-columns:1fr}.guide-facts>div,.guide-prizes p{grid-template-columns:1fr;gap:6px}}
@@ -46,7 +46,7 @@ body{font-family:"Pretendard Variable",Pretendard,"Noto Sans KR","Apple SD Gothi
 .kv-flow{background:linear-gradient(180deg,#5451d2 0%,#5b56d5 74%,#d8d5f8 91%,#fff 100%)}
 .hero-kv .hero-shade{background:linear-gradient(90deg,rgba(24,23,106,.42),rgba(48,43,147,.14) 45%,rgba(71,64,183,.06)),linear-gradient(180deg,rgba(22,21,95,.1) 0%,transparent 78%,rgba(84,81,210,.16) 100%)}
 .hero-kv .hero-character-bag{left:max(60px,calc((100vw - 1480px)/2 + 36px))}
-.hero-kv .hero-character-yellow{left:max(116px,calc((100vw - 1260px)/2 + 26px))}
+.hero-kv .hero-character-yellow{left:max(144px,calc((100vw - 1260px)/2 + 54px))}
 .hero-date{gap:21px;margin-top:28px;padding:17px 27px}
 .hero-date span{padding:6px 14px;font-size:16px}.hero-date strong{font-size:21px}
 .hero-kv .hero-actions{align-items:stretch}.hero-kv .glass-action{min-width:220px;justify-content:center;text-align:center}
@@ -117,7 +117,7 @@ body{font-family:"Pretendard Variable",Pretendard,"Noto Sans KR","Apple SD Gothi
   .hero-kv .hero-character{z-index:2;opacity:.2}
   .hero-kv .hero-character-laptop{top:340px;right:-4%;bottom:auto;width:min(48vw,310px)}
   .hero-kv .hero-character-bag{top:500px;left:-6%;bottom:auto;width:min(38vw,240px)}
-  .hero-kv .hero-character-yellow{top:205px;left:5%;bottom:auto;width:min(17vw,110px)}
+  .hero-kv .hero-character-yellow{top:205px;left:7.5%;bottom:auto;width:min(17vw,110px)}
   .schedule-section{padding-top:104px!important;margin-bottom:70px!important}
   .schedule-heading{align-items:flex-start;flex-direction:column;gap:22px;margin-bottom:46px}
   .schedule-period{text-align:left}
@@ -196,5 +196,7 @@ body{font-family:"Pretendard Variable",Pretendard,"Noto Sans KR","Apple SD Gothi
   .hero-kv .hero-character{opacity:.3}
   .hero-kv .hero-character-laptop{top:370px;right:-6%;bottom:auto;width:52vw}
   .hero-kv .hero-character-bag{top:510px;left:-8%;bottom:auto;width:44vw}
-  .hero-kv .hero-character-yellow{top:220px;right:auto;left:4%;bottom:auto;width:23vw;max-width:88px}
+  .hero-kv .hero-label{font-size:24px}
+  .hero-kv .hero-lead br{display:block}
+  .hero-kv .hero-character-yellow{top:220px;right:auto;left:8%;bottom:auto;width:23vw;max-width:88px}
 }

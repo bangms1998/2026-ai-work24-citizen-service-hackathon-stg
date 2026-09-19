@@ -19,7 +19,6 @@ document.addEventListener('pointerdown',event=>{if(menu?.getAttribute('aria-expa
 window.addEventListener('resize',()=>{if(window.innerWidth>980)setMenu(false)});
 
 const button = document.querySelector('#applyButton');
-const status = document.querySelector('#applyStatus');
 const now = new Date();
 const resolvedContestState = (date) => date < new Date(siteConfig.opensAt)
   ? 'SCHEDULED'
@@ -32,11 +31,6 @@ if (button) {
   button.disabled = !applicationReady;
   if (applicationReady) button.addEventListener('click', () => window.open(siteConfig.formUrl, '_blank', 'noopener,noreferrer'));
 }
-if (status) status.textContent = applicationState === 'OPEN'
-  ? '접수 중 · 2026.09.21(월) — 10.13(화) 18:00'
-  : applicationState === 'CLOSED'
-    ? '접수가 마감되었습니다.'
-    : '접수 예정 · 2026.09.21(월) — 10.13(화) 18:00';
 
 const applyFormLink = document.querySelector('#applyFormLink');
 if (applyFormLink) {

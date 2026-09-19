@@ -24,6 +24,19 @@ test('approved Google Form stays open by owner-approved override', async () => {
   assert.match(app, /resolvedContestState/);
 });
 
+test('hero follows the approved copy, line break, status cleanup and visual adjustment contract', async () => {
+  const html = await read('index.html');
+  const css = await read('kv-theme.css');
+  const app = await read('app.js');
+  assert.match(html, /class="hero-label">2026 고용24<\/p>/);
+  assert.match(html, /class="hero-lead">AI와 함께하는 국민 체감 고용서비스 발굴<br>\s*기획안으로 접수하고, 선정팀은 2주간 온라인에서 직접 MVP를 개발합니다\.<\/p>/);
+  assert.doesNotMatch(html, /class="hero-lead">고용데이터 기반 AI 기술을 활용하여 국민이 체감할 수 있는 고용서비스를 발굴합니다/);
+  assert.doesNotMatch(html, /id="applyStatus"|접수 중 · 2026\.09\.21/);
+  assert.doesNotMatch(app, /applyStatus|접수 중 · 2026\.09\.21/);
+  assert.match(css, /\.hero-kv \.hero-label\{[^}]*font-size:clamp\(30px,3\.6vw,52px\)[^}]*color:#fff/);
+  assert.match(css, /@media\(max-width:560px\)[^{]*\{[\s\S]*?\.hero-kv \.hero-label\{font-size:24px/);
+});
+
 test('public operational copy exposes the approved guideline download', async () => {
   const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'apply.html'];
   for (const page of pages) {
@@ -101,7 +114,6 @@ test('the page includes accessibility and reduced-motion contracts', async () =>
   const html = await read('index.html');
   const css = await read('styles.css');
   assert.match(html, /<main/);
-  assert.match(html, /aria-live=/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(css, /:focus-visible/);
 });
@@ -242,7 +254,8 @@ test('latest 1440 review applies the requested hero, poster and schedule treatme
 
 test('public copy matches the latest official HWPX and clears prior notice and FAQ entries', async () => {
   const [home, guide, notice, faq] = await Promise.all(['index.html', 'guide.html', 'notice.html', 'faq.html'].map(read));
-  assert.match(home, /고용데이터 기반 AI 기술을 활용하여 국민이 체감할 수 있는 고용서비스를 발굴합니다/);
+  assert.match(home, /AI와 함께하는 국민 체감 고용서비스 발굴/);
+  assert.match(home, /기획안으로 접수하고, 선정팀은 2주간 온라인에서 직접 MVP를 개발합니다/);
   assert.match(home, /장소·시간 추후 공개\(서울\)/);
   assert.doesNotMatch(home, /09시 예정|Google Form 접수 링크는 승인 후 공개|해커톤 공모요강을 확인해 주세요/);
   for (const phrase of ['PDF 형식, 약 10페이지 이내', '개인정보수집·이용동의서', '저작재산권 이용허락 동의서', '청렴서약서', '데이터 활용 명세']) {
