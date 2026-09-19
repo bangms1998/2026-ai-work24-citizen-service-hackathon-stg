@@ -65,11 +65,14 @@ test('every public page declares the approved favicon and social sharing image',
     assert.match(html, /rel="icon"[^>]*assets\/meta\/favicon-32x32\.png/);
     assert.match(html, /rel="apple-touch-icon"[^>]*assets\/meta\/apple-touch-icon\.png/);
     assert.ok(html.includes(`<meta property="og:url" content="${socialHost}${path}">`));
-    assert.ok(html.includes(`<meta property="og:image" content="${socialHost}/assets/meta/og-image-1200x630.png?v=20260919">`));
+    const kakaoImage = `${socialHost}/assets/meta/og-kakao-1200x630-20260919.jpg`;
+    assert.ok(html.includes(`<meta property="og:image" content="${kakaoImage}">`));
+    assert.ok(html.includes(`<meta property="og:image:secure_url" content="${kakaoImage}">`));
+    assert.match(html, /property="og:image:type" content="image\/jpeg"/);
     assert.match(html, /property="og:image:width" content="1200"/);
     assert.match(html, /property="og:image:height" content="630"/);
     assert.match(html, /name="twitter:card" content="summary_large_image"/);
-    assert.ok(html.includes(`<meta name="twitter:image" content="${socialHost}/assets/meta/og-image-1200x630.png?v=20260919">`));
+    assert.ok(html.includes(`<meta name="twitter:image" content="${kakaoImage}">`));
   }
   assert.match(await read('404.html'), /rel="icon"[^>]*assets\/meta\/favicon-32x32\.png/);
   for (const asset of ['favicon.ico', 'favicon-16x16.png', 'favicon-32x32.png', 'apple-touch-icon.png', 'favicon-512x512.png', 'og-image-1200x630.png']) {
