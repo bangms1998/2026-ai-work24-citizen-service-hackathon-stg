@@ -53,7 +53,7 @@ test('public operational copy exposes the approved guideline download', async ()
 
 test('guideline download is the owner-supplied latest seven-page PDF', async () => {
   const pdf = await readFile(new URL('../src/assets/downloads/2026_고용24_국민참여_AI_고용서비스_발굴_온라인_해커톤_요강.pdf', import.meta.url));
-  assert.equal(createHash('sha256').update(pdf).digest('hex'), '50fd483e484d7f9965417d832c0934c4243b019a947fcc6d33c344e58fea95b3');
+  assert.equal(createHash('sha256').update(pdf).digest('hex'), 'a6bdff022dc5d81225cb722428e5652be075dae5a2a8a8eb8b2c5f5efe8afb44');
 });
 
 test('every public page declares the approved favicon and social sharing image', async () => {
