@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('application stays scheduled before the official opening with the approved PDF guideline', async ({ page }) => {
+test('application remains open before the official opening by owner-approved override', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
@@ -11,8 +11,8 @@ test('application stays scheduled before the official opening with the approved 
   });
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('고용24');
-  await expect(page.getByRole('button', { name: '접수하기' })).toBeDisabled();
-  await expect(page.locator('#applyStatus')).toContainText('접수 예정');
+  await expect(page.getByRole('button', { name: '접수하기' })).toBeEnabled();
+  await expect(page.locator('#applyStatus')).toContainText('접수 중');
   await expect(page.locator('.hero-date span')).toHaveText('접수기간');
   await expect(page.getByRole('link', { name: '요강 다운로드' })).toHaveAttribute('href', /2026_고용24_국민참여_AI_고용서비스_발굴_온라인_해커톤_요강\.pdf/);
 });
@@ -29,18 +29,19 @@ test('application guide remains operational without collecting data on the site'
   await page.goto('/apply.html');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('공모전 접수');
   await expect(page.locator('#applyFormLink')).toContainText('접수하기');
-  await expect(page.locator('#applyFormLink')).toHaveAttribute('aria-disabled', 'true');
+  await expect(page.locator('#applyFormLink')).toHaveAttribute('href', 'https://forms.gle/feWrX6udYCHKX8ry8');
+  await expect(page.locator('#applyFormLink')).not.toHaveAttribute('aria-disabled', 'true');
   await expect(page.locator('form')).toHaveCount(0);
   await page.goto('/inquiry.html');
   await expect(page.locator('#inquiryForm')).toBeVisible();
   await expect(page.getByRole('link', { name: /메일 앱에서 보내기/ })).toBeHidden();
 });
 
-test('approved Google Form opens only during the official deadline window', async ({ page }) => {
+test('owner-approved open override keeps the Google Form available across schedule boundaries', async ({ page }) => {
   for (const sample of [
-    { now: '2026-09-18T09:00:00+09:00', label: '접수하기', enabled: false },
+    { now: '2026-09-18T09:00:00+09:00', label: '접수하기', enabled: true },
     { now: '2026-09-21T09:00:00+09:00', label: '접수하기', enabled: true },
-    { now: '2026-10-13T18:01:00+09:00', label: '접수하기', enabled: false },
+    { now: '2026-10-13T18:01:00+09:00', label: '접수하기', enabled: true },
   ]) {
     await page.addInitScript((now) => {
       const NativeDate = Date;

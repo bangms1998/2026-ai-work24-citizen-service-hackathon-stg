@@ -1,5 +1,5 @@
 export const siteConfig = Object.freeze({
-  state: 'AUTO',
+  state: 'OPEN',
   formUrl: 'https://forms.gle/feWrX6udYCHKX8ry8',
   opensAt: '2026-09-21T00:00:00+09:00',
   closesAt: '2026-10-13T18:00:00+09:00',
