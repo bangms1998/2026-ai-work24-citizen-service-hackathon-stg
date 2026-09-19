@@ -74,6 +74,38 @@ test('tablet and mobile keep the navigation-to-title gap aligned with desktop', 
   for (const width of [390, 768, 1024]) expect(Math.abs(gaps.get(width) - desktopGap)).toBeLessThanOrEqual(6);
 });
 
+test('desktop yellow character moves slightly farther right without changing mobile placement', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const [width, minLeft, maxLeft] of [[390, 28, 36], [1440, 160, 176]]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto('/');
+    const left = await page.locator('.hero-character-yellow').evaluate((element) => element.getBoundingClientRect().left);
+    expect(left).toBeGreaterThanOrEqual(minLeft);
+    expect(left).toBeLessThanOrEqual(maxLeft);
+  }
+});
+
+test('mobile and tablet pull the second section up while desktop rhythm stays unchanged', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  for (const [width, height, maxHeroHeight, maxVisualGap] of [[390, 844, 780, 160], [560, 900, 780, 100], [768, 1000, 840, 180], [1440, 1000, 920, 170]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/');
+    const geometry = await page.evaluate(() => {
+      const hero = document.querySelector('.hero-kv').getBoundingClientRect();
+      const poster = document.querySelector('.overview-poster').getBoundingClientRect();
+      const actions = document.querySelector('.hero-actions').getBoundingClientRect();
+      const characterBottoms = [...document.querySelectorAll('.hero-character')].map((element) => element.getBoundingClientRect().bottom);
+      return {
+        heroHeight: hero.height,
+        visualGap: poster.top - Math.max(actions.bottom, ...characterBottoms),
+      };
+    });
+    expect(geometry.heroHeight).toBeLessThanOrEqual(maxHeroHeight);
+    expect(geometry.visualGap).toBeGreaterThanOrEqual(56);
+    expect(geometry.visualGap).toBeLessThanOrEqual(maxVisualGap);
+  }
+});
+
 test('application guide remains operational without collecting data on the site', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
@@ -750,6 +782,24 @@ test('guideline card number labels stay close to their titles at every breakpoin
     for (const gap of gaps) {
       expect(gap).toBeGreaterThanOrEqual(18);
       expect(gap).toBeLessThanOrEqual(30);
+    }
+  }
+});
+
+test('guideline card titles stay close to their first content block at every breakpoint', async ({ page }) => {
+  for (const [width, height] of [[390, 844], [768, 1000], [1440, 1000]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/guide.html');
+    const gaps = await page.locator('.guide-content .content-card').evaluateAll((cards) => cards.map((card) => {
+      const title = card.querySelector('h2').getBoundingClientRect();
+      const content = card.querySelector('h2').nextElementSibling.getBoundingClientRect();
+      const table = card.querySelector('h2 + .guide-table-wrap .guide-table');
+      return (table ? table.getBoundingClientRect().top : content.top) - title.bottom;
+    }));
+    expect(gaps).toHaveLength(9);
+    for (const gap of gaps) {
+      expect(gap).toBeGreaterThanOrEqual(10);
+      expect(gap).toBeLessThanOrEqual(18);
     }
   }
 });
