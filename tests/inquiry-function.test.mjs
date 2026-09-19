@@ -50,3 +50,22 @@ test('inquiry endpoint relays validated data and returns a receipt', async () =>
     globalThis.fetch = originalFetch;
   }
 });
+
+test('inquiry endpoint accepts the production custom-domain punycode origin', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({ ok: true }), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+  });
+  try {
+    const origin = 'https://www.xn--299alkwa683hrtfsfp2mn8g3zd53kbtag2cdzeds0aqoj3nl9jq.com';
+    const result = await body(await onRequestPost({
+      request: request({}, origin),
+      env: { INQUIRY_RELAY_URL: 'https://script.google.com/macros/s/test/exec', INQUIRY_RELAY_TOKEN: 'test-token' },
+    }));
+    assert.equal(result.status, 201);
+    assert.equal(result.json.ok, true);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

@@ -12,7 +12,8 @@ export async function onRequestPost({ request, env }) {
   const origin = request.headers.get('origin') || '';
   let originHost = '';
   try { originHost = new URL(origin).hostname; } catch {}
-  const allowedOrigin = originHost === 'www.국민참여고용서비스발굴온라인해커톤.com'
+  const allowedOrigin = originHost === 'www.xn--299alkwa683hrtfsfp2mn8g3zd53kbtag2cdzeds0aqoj3nl9jq.com'
+    || originHost === 'www.국민참여고용서비스발굴온라인해커톤.com'
     || originHost.endsWith('.stunning-work24-stg.pages.dev')
     || originHost === 'stunning-work24-stg.pages.dev';
   if (!allowedOrigin) return json({ ok: false, error: '허용되지 않은 요청입니다.' }, 403);

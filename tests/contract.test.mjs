@@ -37,6 +37,23 @@ test('public operational copy exposes the approved guideline download', async ()
   assert.match(config, /resourcesUrl:\s*['"]assets\/downloads\/2026_고용24_국민참여_AI_고용서비스_발굴_온라인_해커톤_요강\.pdf['"]/);
 });
 
+test('every public page declares the approved favicon and social sharing image', async () => {
+  const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'apply.html'];
+  for (const page of pages) {
+    const html = await read(page);
+    assert.match(html, /rel="icon"[^>]*assets\/meta\/favicon-32x32\.png/);
+    assert.match(html, /rel="apple-touch-icon"[^>]*assets\/meta\/apple-touch-icon\.png/);
+    assert.match(html, /property="og:image" content="https:\/\/www\.국민참여고용서비스발굴온라인해커톤\.com\/assets\/meta\/og-image-1200x630\.png"/);
+    assert.match(html, /property="og:image:width" content="1200"/);
+    assert.match(html, /property="og:image:height" content="630"/);
+    assert.match(html, /name="twitter:card" content="summary_large_image"/);
+  }
+  assert.match(await read('404.html'), /rel="icon"[^>]*assets\/meta\/favicon-32x32\.png/);
+  for (const asset of ['favicon.ico', 'favicon-16x16.png', 'favicon-32x32.png', 'apple-touch-icon.png', 'favicon-512x512.png', 'og-image-1200x630.png']) {
+    await access(new URL(`../src/assets/meta/${asset}`, import.meta.url));
+  }
+});
+
 test('public inquiry posts to a same-origin server relay with six-month retention consent', async () => {
   const inquiry = await read('inquiry.html');
   const apply = await read('apply.html');
