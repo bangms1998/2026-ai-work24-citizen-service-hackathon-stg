@@ -255,6 +255,7 @@ test('landing exposes the approved guidelines, attachment and poster-led five-st
   assert.match(inquiry, /gongmo@stunning\.kr/);
   assert.match(css, /\.schedule-roadmap/);
   assert.match(css, /\.schedule-meta time/);
+  assert.match(css, /\.schedule-roadmap \.schedule-event\.is-current \.schedule-meta time\{[^}]*color:#fff/);
   assert.match(guide, /전문가로 구성된 심사위원단/);
   assert.match(guide, /동점자의 경우 배점 기준 우선순위로 결정/);
 });

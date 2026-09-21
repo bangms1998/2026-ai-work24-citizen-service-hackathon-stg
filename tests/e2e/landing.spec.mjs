@@ -542,6 +542,29 @@ test('schedule becomes a complete vertical roadmap on mobile without overflow', 
   expect(Number(connector.markerZ)).toBeGreaterThan(0);
 });
 
+test('tablet and mobile vertical schedule keeps directional arrows between stages', async ({ page }) => {
+  for (const width of [390, 768, 1024]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto('/');
+    const stages = page.locator('.schedule-roadmap .schedule-event');
+    const arrow = await stages.first().evaluate((event) => {
+      const style = getComputedStyle(event, '::after');
+      return {
+        content: style.content,
+        borderTopWidth: Number.parseFloat(style.borderTopWidth),
+        borderTopColor: style.borderTopColor,
+        left: Number.parseFloat(style.left),
+        markerCenter: event.querySelector('.event-index').getBoundingClientRect().width / 2,
+      };
+    });
+    expect(arrow.content).not.toBe('none');
+    expect(arrow.borderTopWidth).toBeGreaterThanOrEqual(6);
+    expect(arrow.borderTopColor).toBe('rgb(200, 209, 228)');
+    expect(Math.abs(arrow.left - arrow.markerCenter)).toBeLessThanOrEqual(1);
+    expect(await stages.last().evaluate((event) => getComputedStyle(event, '::after').content)).toBe('none');
+  }
+});
+
 test('tablet schedule uses one continuous ruled timeline instead of a broken two-column board', async ({ page }) => {
   for (const width of [768, 1024]) {
     await page.setViewportSize({ width, height: 1000 });
