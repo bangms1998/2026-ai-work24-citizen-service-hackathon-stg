@@ -30,11 +30,63 @@
 </head>
 <body>
 <a class="skip" href="#main">본문 바로가기</a>
-<header class="site-header"><a class="brand organizer-brand" href="index.html" aria-label="고용노동부·한국고용정보원 주최·주관, 공모전 홈"><span class="organizer-logo-set logo-dark"><img src="assets/kv/ministry-dark.png" alt="고용노동부"><img src="assets/kv/keis-dark.png" alt="한국고용정보원"></span></a><button class="menu" type="button" aria-label="주요 메뉴 열기" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button><nav id="nav" aria-label="주요 메뉴"><a href="index.html">홈</a><a href="guide.html">공모요강</a><a href="notice.html">공지사항</a><a href="faq.html">자주 묻는 질문</a><a href="inquiry.html">문의</a></nav></header>
+<header class="site-header"><a class="brand organizer-brand" href="index.html" aria-label="고용노동부·한국고용정보원 주최·주관, 공모전 홈"><span class="organizer-logo-set logo-dark"><img src="assets/kv/ministry-dark.png" alt="고용노동부"><img src="assets/kv/keis-dark.png" alt="한국고용정보원"></span></a><button class="menu" type="button" aria-label="주요 메뉴 열기" aria-expanded="false" aria-controls="nav"><span></span><span></span><span></span></button><nav id="nav" aria-label="주요 메뉴"><a href="index.html">홈</a><a href="guide.html">공모요강</a><a href="notice.html">공지사항</a><a href="faq.html" aria-current="page">자주 묻는 질문</a><a href="inquiry.html">문의</a></nav></header>
 <main id="main">
   <section class="sub-hero"><h1>자주 묻는 질문</h1><p>공모전 관련 주요 질문과 답변을 확인하세요.</p></section>
-  <section class="content" aria-label="자주 묻는 질문 목록">
-    <p class="empty-state">등록된 자주 묻는 질문이 없습니다.</p>
+  <section class="content faq-content" aria-label="자주 묻는 질문 목록">
+    <section class="faq-group" aria-labelledby="faq-category-eligibility">
+      <h2 id="faq-category-eligibility">1. 참가 자격</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary><span class="faq-index">Q1</span><span>학생이나 취업준비생만 참가할 수 있나요?</span></summary>
+          <div class="faq-answer"><p>아닙니다. 서비스 기획 및 개발에 관심 있는 만 19세 이상 대한민국 국민이라면 직업이나 소속에 관계없이 참가할 수 있습니다. 다만 국내 거주자에 한하며, 기업 명의로는 참가할 수 없습니다.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary><span class="faq-index">Q2</span><span>개인으로도 참가할 수 있나요? 팀은 몇 명까지 가능한가요?</span></summary>
+          <div class="faq-answer"><p>개인 또는 팀으로 참가할 수 있습니다. 팀은 2명 이상 4명 이내로 구성해야 하며, 팀당 1개의 아이디어만 제출할 수 있습니다.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <section class="faq-group" aria-labelledby="faq-category-scope">
+      <h2 id="faq-category-scope">2. 공모 주제·개발 범위</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary><span class="faq-index">Q3</span><span>어떤 서비스를 제안해야 하나요?</span></summary>
+          <div class="faq-answer"><p>AI 기술을 접목하여 국민이 체감할 수 있는 고용24 관련 서비스를 제안해야 합니다. 1차 접수 단계에서는 아이디어 기획안을 제출하며, 서류심사를 통해 선정된 20팀은 제안한 아이디어를 바탕으로 웹 서비스 형태의 MVP를 개발하게 됩니다.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary><span class="faq-index">Q4</span><span>MVP는 어느 정도까지 구현해야 하나요?</span></summary>
+          <div class="faq-answer"><p>MVP는 모든 기능을 갖춘 완성형 서비스가 아니라, 핵심 기능을 구현해 실제 작동 여부와 실현 가능성을 검증할 수 있는 최소 단위의 제품을 의미합니다. 따라서 단순한 화면 시안에 그치기보다, 주요 이용 흐름과 제안한 서비스의 핵심 기능이 실제로 작동하도록 구현해야 합니다.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary><span class="faq-index">Q5</span><span>AI 기술을 반드시 활용해야 하나요?</span></summary>
+          <div class="faq-answer"><p>네. 제안하는 고용24 서비스의 핵심 기능에 AI 기술이 활용되어야 합니다. AI 기술을 활용하지 않은 작품은 심사에서 제외됩니다. 아이디어 기획안에는 해결하려는 문제와 AI 기술의 활용 방식이 구체적으로 드러나도록 작성해 주시기 바랍니다.</p></div>
+        </details>
+        <details class="faq-item">
+          <summary><span class="faq-index">Q6</span><span>생성형 AI플랫폼이 뭔가요?</span></summary>
+          <div class="faq-answer"><p>선정된 20팀이 MVP 개발 시 활용할 수 있도록 제공하는 LLM 기반 개발 환경입니다. 별도의 서버나 모델 구축 없이 API방식으로 생성형 AI 기능을 호출해 서비스에 바로 접목할 수 있는 형태로 제공됩니다. 세부 제공모델, 이용한도, 접속방법은 1차 심사 통과팀 대상 설명회에서 안내드립니다.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <section class="faq-group" aria-labelledby="faq-category-other">
+      <h2 id="faq-category-other">3. 기타</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary><span class="faq-index">Q7</span><span>문의는 어디로 하면 되나요?</span></summary>
+          <div class="faq-answer">
+            <p>공모전 관련 문의는 공식 홈페이지의 ‘문의’ 메뉴를 통해 접수할 수 있습니다. 문의 유형과 이름, 회신 이메일, 제목 및 문의 내용을 작성해 제출하면 운영사무국에서 확인 후 입력하신 이메일로 답변드립니다.</p>
+            <p>이메일 또는 전화 문의도 가능합니다.</p>
+            <ul class="faq-contact-list">
+              <li>이메일: <a href="mailto:gongmo@stunning.kr">gongmo@stunning.kr</a></li>
+              <li>전화: <a href="tel:07040604046">070-4060-4046</a></li>
+              <li>전화 운영시간: 평일 11:00~17:00</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
   </section>
 </main>
 <footer class="site-footer"><div><div class="organizer-logos"><img src="assets/kv/ministry-dark.png" alt="고용노동부"><img src="assets/kv/keis-dark.png" alt="한국고용정보원"></div><p>2026 고용24 국민참여 AI 고용서비스 발굴 온라인 해커톤<br>주최·주관 고용노동부 · 한국고용정보원</p></div><div class="footer-links"><a href="guide.html">공모요강</a><a href="notice.html">공지사항</a><a href="faq.html">FAQ</a><a href="inquiry.html">문의</a><a href="mailto:gongmo@stunning.kr">gongmo@stunning.kr</a></div></footer>

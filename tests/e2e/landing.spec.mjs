@@ -239,13 +239,21 @@ test('decorative English labels are removed and title leading is relaxed', async
   expect(lineHeight).toBeGreaterThanOrEqual(1.18);
 });
 
-test('notice and FAQ pages preserve their routes with empty operational states', async ({ page }) => {
-  await page.goto('/notice.html');
-  await expect(page.locator('.notice-board tbody tr')).toHaveCount(0);
-  await expect(page.getByText('등록된 공지사항이 없습니다.')).toBeVisible();
+test('FAQ page publishes the seven approved questions in three source categories', async ({ page }) => {
   await page.goto('/faq.html');
-  await expect(page.locator('.content > .content-card details')).toHaveCount(0);
-  await expect(page.getByText('등록된 자주 묻는 질문이 없습니다.')).toBeVisible();
+  await expect(page.locator('.faq-group')).toHaveCount(3);
+  await expect(page.locator('.faq-list details')).toHaveCount(7);
+  await expect(page.getByRole('heading', { name: '1. 참가 자격' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '2. 공모 주제·개발 범위' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '3. 기타' })).toBeVisible();
+  await expect(page.getByText('학생이나 취업준비생만 참가할 수 있나요?')).toBeVisible();
+  await page.getByText('생성형 AI플랫폼이 뭔가요?').click();
+  await expect(page.getByText(/API방식으로 생성형 AI 기능을 호출해/)).toBeVisible();
+  await page.getByText('문의는 어디로 하면 되나요?').click();
+  const otherCategory = page.getByRole('region', { name: '3. 기타' });
+  await expect(otherCategory.getByRole('link', { name: 'gongmo@stunning.kr' })).toHaveAttribute('href', 'mailto:gongmo@stunning.kr');
+  await expect(otherCategory.getByRole('link', { name: '070-4060-4046' })).toHaveAttribute('href', 'tel:07040604046');
+  await expect(otherCategory.getByText('평일 11:00~17:00')).toBeVisible();
 });
 
 test('inquiry form submits inside the site and shows the server receipt', async ({ page }) => {

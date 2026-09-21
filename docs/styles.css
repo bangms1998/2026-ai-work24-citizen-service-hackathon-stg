@@ -243,3 +243,22 @@ body.menu-open{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.winner-card-link{transition:none}.winner-card-link:hover{transform:none}}
 @media(max-width:760px){.winner-intro{margin-bottom:36px}.winner-card{grid-template-columns:1fr;height:auto;min-height:0}.winner-preview{height:280px;min-height:280px}.winner-copy{min-height:0;padding:28px 24px 32px}.winner-copy h3{font-size:28px}}
 
+/* 2026-09-21 final seven-item FAQ */
+.faq-content{max-width:980px}
+.faq-group+.faq-group{margin-top:70px}
+.faq-group>h2{margin:0 0 24px;font-size:clamp(27px,3vw,38px);line-height:1.28;letter-spacing:-.045em}
+.faq-list{border-top:2px solid #111112}
+.faq-item{margin:0;padding:0;border:0;border-bottom:1px solid #d7d7d4;border-radius:0;background:transparent}
+.faq-item+.faq-item{margin-top:0}
+.faq-item summary{display:grid;grid-template-columns:48px minmax(0,1fr) 24px;gap:14px;align-items:center;padding:25px 4px;list-style:none;color:#171719;font-size:clamp(18px,2vw,22px);font-weight:760;line-height:1.45;cursor:pointer}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary:after{content:"+";justify-self:end;color:#77777b;font-size:26px;font-weight:400;line-height:1}
+.faq-item[open] summary:after{content:"−"}
+.faq-index{color:#69696d;font-size:14px;font-weight:800;letter-spacing:.02em}
+.faq-answer{padding:0 42px 28px 66px;color:#55555a;font-size:17px;line-height:1.8}
+.faq-answer p{margin:0}
+.faq-answer p+p{margin-top:18px}
+.faq-contact-list{display:grid;gap:5px;margin:18px 0 0;padding:0;list-style:none}
+.faq-contact-list a{text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+@media(max-width:560px){.faq-content{padding-top:64px}.faq-group+.faq-group{margin-top:52px}.faq-item summary{grid-template-columns:38px minmax(0,1fr) 20px;gap:8px;padding:22px 0;font-size:18px}.faq-answer{padding:0 28px 24px 46px;font-size:16px}.faq-index{font-size:12px}}
+

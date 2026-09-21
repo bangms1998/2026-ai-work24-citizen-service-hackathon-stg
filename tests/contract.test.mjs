@@ -281,7 +281,7 @@ test('latest 1440 review applies the requested hero, poster and schedule treatme
   assert.match(css, /\.schedule-heading h2\{[^}]*line-height:1\.16/);
 });
 
-test('public copy matches the latest official HWPX and clears prior notice and FAQ entries', async () => {
+test('public copy matches the latest official guideline and final seven-item FAQ source', async () => {
   const [home, guide, notice, faq] = await Promise.all(['index.html', 'guide.html', 'notice.html', 'faq.html'].map(read));
   assert.match(home, /AI와 함께하는 국민 체감 고용서비스 발굴/);
   assert.match(home, /기획안으로 접수하고, 선정팀은 2주간 온라인에서 직접 MVP를 개발합니다/);
@@ -293,8 +293,29 @@ test('public copy matches the latest official HWPX and clears prior notice and F
   assert.match(notice, /총 <strong>0건<\/strong>/);
   assert.match(notice, /등록된 공지사항이 없습니다/);
   assert.doesNotMatch(notice, /<tbody>\s*<tr>/);
-  assert.match(faq, /등록된 자주 묻는 질문이 없습니다/);
-  assert.doesNotMatch(faq, /<details/);
+
+  assert.equal((faq.match(/<details/g) || []).length, 7);
+  for (const question of [
+    '학생이나 취업준비생만 참가할 수 있나요?',
+    '개인으로도 참가할 수 있나요? 팀은 몇 명까지 가능한가요?',
+    '어떤 서비스를 제안해야 하나요?',
+    'MVP는 어느 정도까지 구현해야 하나요?',
+    'AI 기술을 반드시 활용해야 하나요?',
+    '생성형 AI플랫폼이 뭔가요?',
+    '문의는 어디로 하면 되나요?',
+  ]) assert.ok(faq.includes(question), `missing FAQ question: ${question}`);
+  for (const phrase of [
+    '만 19세 이상 대한민국 국민',
+    '팀은 2명 이상 4명 이내로 구성',
+    '웹 서비스 형태의 MVP',
+    '실제 작동 여부와 실현 가능성',
+    'AI 기술을 활용하지 않은 작품은 심사에서 제외',
+    'API방식으로 생성형 AI 기능을 호출해',
+    'gongmo@stunning.kr',
+    '070-4060-4046',
+    '평일 11:00~17:00',
+  ]) assert.ok(faq.includes(phrase), `missing FAQ source phrase: ${phrase}`);
+  assert.doesNotMatch(faq, /등록된 자주 묻는 질문이 없습니다/);
 });
 
 test('winners stay outside the public artifact until an approved release', async () => {
