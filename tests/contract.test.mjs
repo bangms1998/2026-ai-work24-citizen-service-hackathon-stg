@@ -120,6 +120,15 @@ test('public artifact declares security headers and remains hostname independent
   }
 });
 
+test('every public page exposes the approved Naver ownership verification tag exactly once', async () => {
+  const pages = ['index.html', 'guide.html', 'notice.html', 'faq.html', 'inquiry.html', 'apply.html'];
+  const tag = '<meta name="naver-site-verification" content="6d6e91e7fd77d4a47dadbc92018631f572ad583d">';
+  for (const page of pages) {
+    const html = await read(page);
+    assert.equal(html.split(tag).length - 1, 1, `${page} must contain exactly one approved Naver verification tag`);
+  }
+});
+
 test('local QA uses a contest-specific port instead of the shared 4173 default', async () => {
   const server = await readFile(new URL('../scripts/server.mjs', import.meta.url), 'utf8');
   const playwright = await readFile(new URL('../playwright.config.mjs', import.meta.url), 'utf8');
