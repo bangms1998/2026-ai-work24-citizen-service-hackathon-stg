@@ -281,7 +281,7 @@ test('latest 1440 review applies the requested hero, poster and schedule treatme
   assert.match(css, /\.schedule-heading h2\{[^}]*line-height:1\.16/);
 });
 
-test('public copy matches the latest official guideline and final seven-item FAQ source', async () => {
+test('public copy preserves the seven approved FAQs and adds the two corrected OpenAPI FAQs', async () => {
   const [home, guide, notice, faq] = await Promise.all(['index.html', 'guide.html', 'notice.html', 'faq.html'].map(read));
   assert.match(home, /AI와 함께하는 국민 체감 고용서비스 발굴/);
   assert.match(home, /기획안으로 접수하고, 선정팀은 2주간 온라인에서 직접 MVP를 개발합니다/);
@@ -294,7 +294,7 @@ test('public copy matches the latest official guideline and final seven-item FAQ
   assert.match(notice, /등록된 공지사항이 없습니다/);
   assert.doesNotMatch(notice, /<tbody>\s*<tr>/);
 
-  assert.equal((faq.match(/<details/g) || []).length, 7);
+  assert.equal((faq.match(/<details/g) || []).length, 9);
   for (const question of [
     '학생이나 취업준비생만 참가할 수 있나요?',
     '개인으로도 참가할 수 있나요? 팀은 몇 명까지 가능한가요?',
@@ -302,6 +302,8 @@ test('public copy matches the latest official guideline and final seven-item FAQ
     'MVP는 어느 정도까지 구현해야 하나요?',
     'AI 기술을 반드시 활용해야 하나요?',
     '생성형 AI플랫폼이 뭔가요?',
+    '개인 참가자가 일부 OpenAPI의 인증키를 발급받기 어려운 경우에는 어떻게 활용해야 하나요?',
+    '고용24 OpenAPI 요청 시 비정상적인 호출을 시도하면 어떻게 되나요?',
     '문의는 어디로 하면 되나요?',
   ]) assert.ok(faq.includes(question), `missing FAQ question: ${question}`);
   for (const phrase of [
@@ -311,10 +313,16 @@ test('public copy matches the latest official guideline and final seven-item FAQ
     '실제 작동 여부와 실현 가능성',
     'AI 기술을 활용하지 않은 작품은 심사에서 제외',
     'API방식으로 생성형 AI 기능을 호출해',
+    '데이터 활용 명세서에는 해당 데이터가 ‘모의데이터’임을 명확히 기재',
+    '동일한 모의데이터를 활용해 MVP를 개발할 수 있습니다',
+    'API Endpoint 임의 변경 및 변조',
+    '사전 통지 없이 즉시 접속 IP가 차단될 수 있습니다',
     'gongmo@stunning.kr',
     '070-4060-4046',
     '평일 11:00~17:00',
   ]) assert.ok(faq.includes(phrase), `missing FAQ source phrase: ${phrase}`);
+  assert.equal((faq.match(/동일한 모의데이터를 활용해 MVP를 개발할 수 있습니다/g) || []).length, 1);
+  assert.doesNotMatch(faq, /OpenAPI 인증키 발급받기|구현해 주세요\.\.|ApI Endpoint/);
   assert.doesNotMatch(faq, /등록된 자주 묻는 질문이 없습니다/);
 });
 

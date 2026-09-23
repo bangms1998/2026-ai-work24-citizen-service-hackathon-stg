@@ -258,6 +258,8 @@ body.menu-open{overflow:hidden}
 .faq-answer{padding:0 42px 28px 66px;color:#55555a;font-size:17px;line-height:1.8}
 .faq-answer p{margin:0}
 .faq-answer p+p{margin-top:18px}
+.faq-guidance-list{display:grid;gap:8px;margin:18px 0 0;padding-left:1.2em}
+.faq-guidance-list li{padding-left:.15em}
 .faq-contact-list{display:grid;gap:5px;margin:18px 0 0;padding:0;list-style:none}
 .faq-contact-list a{text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
 @media(max-width:560px){.faq-content{padding-top:64px}.faq-group+.faq-group{margin-top:52px}.faq-item summary{grid-template-columns:38px minmax(0,1fr) 20px;gap:8px;padding:22px 0;font-size:18px}.faq-answer{padding:0 28px 24px 46px;font-size:16px}.faq-index{font-size:12px}}

@@ -239,16 +239,20 @@ test('decorative English labels are removed and title leading is relaxed', async
   expect(lineHeight).toBeGreaterThanOrEqual(1.18);
 });
 
-test('FAQ page publishes the seven approved questions in three source categories', async ({ page }) => {
+test('FAQ page publishes nine approved questions in three source categories', async ({ page }) => {
   await page.goto('/faq.html');
   await expect(page.locator('.faq-group')).toHaveCount(3);
-  await expect(page.locator('.faq-list details')).toHaveCount(7);
+  await expect(page.locator('.faq-list details')).toHaveCount(9);
   await expect(page.getByRole('heading', { name: '1. 참가 자격' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '2. 공모 주제·개발 범위' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '3. 기타' })).toBeVisible();
   await expect(page.getByText('학생이나 취업준비생만 참가할 수 있나요?')).toBeVisible();
   await page.getByText('생성형 AI플랫폼이 뭔가요?').click();
   await expect(page.getByText(/API방식으로 생성형 AI 기능을 호출해/)).toBeVisible();
+  await page.getByText('개인 참가자가 일부 OpenAPI의 인증키를 발급받기 어려운 경우에는 어떻게 활용해야 하나요?').click();
+  await expect(page.getByText(/데이터 활용 명세서에는 해당 데이터가 ‘모의데이터’임을 명확히 기재/)).toBeVisible();
+  await page.getByText('고용24 OpenAPI 요청 시 비정상적인 호출을 시도하면 어떻게 되나요?').click();
+  await expect(page.getByText(/API Endpoint 임의 변경 및 변조/)).toBeVisible();
   await page.getByText('문의는 어디로 하면 되나요?').click();
   const otherCategory = page.getByRole('region', { name: '3. 기타' });
   await expect(otherCategory.getByRole('link', { name: 'gongmo@stunning.kr' })).toHaveAttribute('href', 'mailto:gongmo@stunning.kr');
