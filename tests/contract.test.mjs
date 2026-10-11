@@ -287,7 +287,9 @@ test('public copy preserves the seven approved FAQs and adds the two corrected O
   assert.match(home, /기획안으로 접수하고, 선정팀은 2주간 온라인에서 직접 MVP를 개발합니다/);
   assert.match(home, /장소·시간 추후 공개\(서울\)/);
   assert.doesNotMatch(home, /09시 예정|Google Form 접수 링크는 승인 후 공개|해커톤 공모요강을 확인해 주세요/);
-  for (const phrase of ['PDF 형식, 약 10페이지 이내', '개인정보수집·이용동의서', '저작재산권 이용허락 동의서', '청렴서약서', '데이터 활용 명세']) {
+  assert.match(guide, /제출 서류: 아이디어 기획안 1부\(PDF 형식, 표지,목차 포함 약 10페이지 이내\)/);
+  assert.doesNotMatch(guide, /제출 서류: 아이디어 기획안 1부\(PDF 형식, 약 10페이지 이내\)/);
+  for (const phrase of ['개인정보수집·이용동의서', '저작재산권 이용허락 동의서', '청렴서약서', '데이터 활용 명세']) {
     assert.match(guide, new RegExp(phrase));
   }
   assert.match(notice, /총 <strong>0건<\/strong>/);
