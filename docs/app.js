@@ -19,31 +19,67 @@ document.addEventListener('pointerdown',event=>{if(menu?.getAttribute('aria-expa
 window.addEventListener('resize',()=>{if(window.innerWidth>980)setMenu(false)});
 
 const button = document.querySelector('#applyButton');
-const now = new Date();
 const resolvedContestState = (date) => date < new Date(siteConfig.opensAt)
   ? 'SCHEDULED'
-  : date <= new Date(siteConfig.closesAt) ? 'OPEN' : 'CLOSED';
-const applicationState = siteConfig.state === 'OPEN' ? 'OPEN' : resolvedContestState(now);
-const labels = { SCHEDULED: '접수하기', OPEN: '접수하기', CLOSED: '접수하기' };
-const applicationReady = applicationState === 'OPEN' && Boolean(siteConfig.formUrl);
-if (button) {
-  button.textContent = labels[applicationState];
-  button.disabled = !applicationReady;
-  if (applicationReady) button.addEventListener('click', () => window.open(siteConfig.formUrl, '_blank', 'noopener,noreferrer'));
-}
-
+  : date < new Date(siteConfig.closesAt) ? 'OPEN' : 'CLOSED';
 const applyFormLink = document.querySelector('#applyFormLink');
-if (applyFormLink) {
-  applyFormLink.textContent = labels[applicationState];
+const reviewStatus = document.querySelector('#reviewStatus');
+const applicationOpen = document.querySelector('#applicationOpen');
+const applicationClosed = document.querySelector('#applicationClosed');
+const applicationPageLead = document.querySelector('#applicationPageLead');
+const labels = { SCHEDULED: '접수하기', OPEN: '접수하기', CLOSED: '접수 종료' };
+const resolveApplicationState = (date) => siteConfig.state === 'AUTO'
+  ? resolvedContestState(date)
+  : siteConfig.state;
+let applicationState = resolveApplicationState(new Date());
+
+const renderApplicationState = () => {
+  applicationState = resolveApplicationState(new Date());
+  const applicationReady = applicationState === 'OPEN' && Boolean(siteConfig.formUrl);
+  if (button) {
+    button.textContent = labels[applicationState] || '접수 상태 확인';
+    button.disabled = !applicationReady;
+    button.hidden = !applicationReady;
+  }
+  if (reviewStatus) reviewStatus.hidden = applicationReady;
+  if (applicationOpen) applicationOpen.hidden = !applicationReady;
+  if (applicationClosed) applicationClosed.hidden = applicationReady;
+  if (applicationPageLead) {
+    applicationPageLead.textContent = applicationReady
+      ? '공식 접수기간에 Google Form을 통해 신청할 수 있습니다.'
+      : '접수가 마감되었습니다. 다음 일정은 1차 서류심사입니다.';
+  }
+  if (!applyFormLink) return;
+  applyFormLink.textContent = labels[applicationState] || '접수 상태 확인';
   if (applicationReady) {
+    applyFormLink.hidden = false;
     applyFormLink.href = siteConfig.formUrl;
     applyFormLink.target = '_blank';
     applyFormLink.rel = 'noopener noreferrer';
     applyFormLink.removeAttribute('aria-disabled');
   } else {
+    applyFormLink.hidden = true;
     applyFormLink.removeAttribute('href');
+    applyFormLink.removeAttribute('target');
+    applyFormLink.removeAttribute('rel');
     applyFormLink.setAttribute('aria-disabled', 'true');
-    applyFormLink.addEventListener('click', (event) => event.preventDefault());
+  }
+};
+
+button?.addEventListener('click', () => {
+  if (applicationState === 'OPEN' && siteConfig.formUrl) {
+    window.open(siteConfig.formUrl, '_blank', 'noopener,noreferrer');
+  }
+});
+applyFormLink?.addEventListener('click', (event) => {
+  if (applicationState !== 'OPEN') event.preventDefault();
+});
+renderApplicationState();
+
+if (siteConfig.state === 'AUTO') {
+  const millisecondsUntilClose = new Date(siteConfig.closesAt).getTime() - Date.now();
+  if (millisecondsUntilClose > 0) {
+    setTimeout(renderApplicationState, Math.min(millisecondsUntilClose + 25, 2_147_483_647));
   }
 }
 

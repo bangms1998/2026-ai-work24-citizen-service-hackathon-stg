@@ -23,6 +23,8 @@ body{font-family:"Pretendard Variable",Pretendard,"Noto Sans KR","Apple SD Gothi
 .hero-date span{padding:4px 9px;border-radius:999px;background:#fff;color:var(--kv-navy);font-size:11px}.hero-date strong{font-size:14px;letter-spacing:-.02em}
 .hero-kv .hero-actions{justify-content:center;margin-top:30px}.hero-kv .glass-action{border-color:rgba(255,255,255,.38);background:rgba(255,255,255,.15);box-shadow:inset 0 1px rgba(255,255,255,.22);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .hero-kv .glass-action:first-child{background:#fff;color:var(--kv-navy)}.hero-kv .status{color:rgba(255,255,255,.7)}
+.lifecycle-status{width:fit-content;max-width:min(100%,620px);margin:24px auto 0;padding:14px 20px;border:1px solid rgba(255,255,255,.32);border-radius:16px;background:rgba(25,24,103,.34);color:rgba(255,255,255,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);word-break:keep-all}.lifecycle-status strong{display:block;margin-bottom:2px;color:#fff;font-size:17px}
+#applyButton[hidden],#applicationOpen[hidden],#applicationClosed[hidden]{display:none!important}
 @keyframes kvLaptopFloat{0%,100%{transform:translate3d(0,0,0) rotate(-1deg)}50%{transform:translate3d(0,-13px,0) rotate(.7deg)}}
 @keyframes kvBagSway{0%,100%{transform:translate3d(0,0,0) rotate(.8deg)}50%{transform:translate3d(0,-9px,0) rotate(-1.5deg)}}
 @keyframes kvYellowFloat{0%,100%{transform:translate3d(0,0,0) rotate(-2deg)}50%{transform:translate3d(4px,-10px,0) rotate(2deg)}}

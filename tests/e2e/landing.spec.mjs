@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
-test('application remains open before the official opening by owner-approved override', async ({ page }) => {
+test('application remains open before the automatic 18:05 close', async ({ page }) => {
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
-      constructor(...args) { super(...(args.length ? args : ['2026-09-18T12:00:00+09:00'])); }
-      static now() { return new NativeDate('2026-09-18T12:00:00+09:00').getTime(); }
+      constructor(...args) { super(...(args.length ? args : ['2026-10-13T18:04:59+09:00'])); }
+      static now() { return new NativeDate('2026-10-13T18:04:59+09:00').getTime(); }
     }
     window.Date = MockDate;
   });
@@ -110,8 +110,8 @@ test('application guide remains operational without collecting data on the site'
   await page.addInitScript(() => {
     const NativeDate = Date;
     class MockDate extends NativeDate {
-      constructor(...args) { super(...(args.length ? args : ['2026-09-18T12:00:00+09:00'])); }
-      static now() { return new NativeDate('2026-09-18T12:00:00+09:00').getTime(); }
+      constructor(...args) { super(...(args.length ? args : ['2026-10-13T18:04:59+09:00'])); }
+      static now() { return new NativeDate('2026-10-13T18:04:59+09:00').getTime(); }
     }
     window.Date = MockDate;
   });
@@ -126,11 +126,10 @@ test('application guide remains operational without collecting data on the site'
   await expect(page.getByRole('link', { name: /메일 앱에서 보내기/ })).toBeHidden();
 });
 
-test('owner-approved open override keeps the Google Form available across schedule boundaries', async ({ page }) => {
+test('automatic lifecycle hides application access at 18:05 KST', async ({ page }) => {
   for (const sample of [
-    { now: '2026-09-18T09:00:00+09:00', label: '접수하기', enabled: true },
-    { now: '2026-09-21T09:00:00+09:00', label: '접수하기', enabled: true },
-    { now: '2026-10-13T18:01:00+09:00', label: '접수하기', enabled: true },
+    { now: '2026-10-13T18:04:59+09:00', open: true },
+    { now: '2026-10-13T18:05:00+09:00', open: false },
   ]) {
     await page.addInitScript((now) => {
       const NativeDate = Date;
@@ -141,9 +140,28 @@ test('owner-approved open override keeps the Google Form available across schedu
       window.Date = MockDate;
     }, sample.now);
     await page.goto('/');
-    const button = page.getByRole('button', { name: sample.label });
-    if (sample.enabled) await expect(button).toBeEnabled();
-    else await expect(button).toBeDisabled();
+    const button = page.locator('#applyButton');
+    if (sample.open) {
+      await expect(button).toBeVisible();
+      await expect(button).toBeEnabled();
+      await expect(page.locator('#reviewStatus')).toBeHidden();
+    } else {
+      await expect(button).toBeHidden();
+      await expect(page.locator('#reviewStatus')).toBeVisible();
+      await expect(page.locator('#reviewStatus')).toContainText('접수가 마감되었습니다');
+    }
+
+    await page.goto('/apply.html');
+    if (sample.open) {
+      await expect(page.locator('#applyFormLink')).toBeVisible();
+      await expect(page.locator('#applicationOpen')).toBeVisible();
+      await expect(page.locator('#applicationClosed')).toBeHidden();
+    } else {
+      await expect(page.locator('#applyFormLink')).toBeHidden();
+      await expect(page.locator('#applicationOpen')).toBeHidden();
+      await expect(page.locator('#applicationClosed')).toBeVisible();
+      await expect(page.locator('#applicationPageLead')).toContainText('접수가 마감되었습니다');
+    }
   }
 });
 

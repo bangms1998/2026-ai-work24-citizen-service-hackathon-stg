@@ -14,15 +14,21 @@ test('public landing exposes every required contest route without draft placehol
   assert.doesNotMatch(html, /정부24|태극|대한민국정부/);
 });
 
-test('approved Google Form stays open by owner-approved override', async () => {
+test('approved Google Form switches from open to closed automatically at 18:05 KST', async () => {
   const config = await read('site-config.js');
   const app = await read('app.js');
+  const html = await read('index.html');
+  const css = await read('kv-theme.css');
   assert.match(config, /formUrl:\s*['"]https:\/\/forms\.gle\/feWrX6udYCHKX8ry8['"]/);
-  assert.match(config, /state:\s*['"]OPEN['"]/);
+  assert.match(config, /state:\s*['"]AUTO['"]/);
   assert.match(config, /opensAt:\s*['"]2026-09-21T00:00:00\+09:00['"]/);
-  assert.match(config, /closesAt:\s*['"]2026-10-13T18:00:00\+09:00['"]/);
+  assert.match(config, /closesAt:\s*['"]2026-10-13T18:05:00\+09:00['"]/);
   assert.match(app, /siteConfig\.formUrl/);
   assert.match(app, /resolvedContestState/);
+  assert.match(app, /setTimeout/);
+  assert.match(app, /button\.hidden\s*=\s*!applicationReady/);
+  assert.match(html, /id="reviewStatus"[^>]*hidden/);
+  assert.match(css, /\.lifecycle-status\{/);
 });
 
 test('hero follows the approved copy, line break, status cleanup and visual adjustment contract', async () => {
@@ -47,7 +53,7 @@ test('public operational copy exposes the approved guideline download', async ()
   const html = await read('index.html');
   const config = await read('site-config.js');
   assert.match(html, /id="resourcesDownload"[^>]*>요강 다운로드/);
-  assert.match(config, /state:\s*['"]OPEN['"]/);
+  assert.match(config, /state:\s*['"]AUTO['"]/);
   assert.match(config, /resourcesUrl:\s*['"]assets\/downloads\/2026_고용24_국민참여_AI_고용서비스_발굴_온라인_해커톤_요강\.pdf['"]/);
 });
 
