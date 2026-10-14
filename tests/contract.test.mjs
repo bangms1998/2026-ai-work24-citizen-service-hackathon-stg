@@ -251,7 +251,7 @@ test('landing exposes the approved guidelines, attachment and poster-led five-st
   assert.doesNotMatch(html, /id="scheduleCalendar"|id="scheduleData"|calendar-month|calendar-day/);
   assert.match(html, /class="schedule-events schedule-roadmap"/);
   for (const label of ['접수', '1차 심사·20팀 발표', '온라인 MVP 개발', '2차 기능심사', '본선 발표·시상']) assert.match(html, new RegExp(label));
-  for (const dateLabel of ['9.21 — 10.13', '10월 중', '10월 ~ 11월 중', '11월 중', '11월 ~ 12월 중']) assert.ok(html.includes(dateLabel));
+  for (const dateLabel of ['9.21 — 10.13', '10.22', '10월 ~ 11월 중', '11월 중', '11월 ~ 12월 중']) assert.ok(html.includes(dateLabel));
   assert.equal((html.match(/class="schedule-event"/g) || []).length, 5);
   assert.match(html, /data-start="2026-09-21"/);
   assert.match(html, /data-end="2026-10-13"/);

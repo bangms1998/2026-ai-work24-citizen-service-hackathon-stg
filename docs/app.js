@@ -150,7 +150,7 @@ if (scheduleEvents.length) {
     } else if (todayKey >= event.start && todayKey <= event.end) {
       event.element.classList.add('is-current');
       event.element.setAttribute('aria-current', 'step');
-      if (state) state.textContent = '진행 중';
+      if (state) state.textContent = event.id === 'review' ? '심사 진행' : '진행 중';
     } else {
       if (state) state.textContent = '예정';
       if (!nextEvent) nextEvent = event;
@@ -159,7 +159,7 @@ if (scheduleEvents.length) {
   if (!events.some(({ element }) => element.classList.contains('is-current')) && nextEvent) {
     nextEvent.element.classList.add('is-next');
     const state = nextEvent.element.querySelector('.schedule-state');
-    if (state) state.textContent = '다음 일정';
+    if (state) state.textContent = nextEvent.id === 'review' && applicationState === 'CLOSED' ? '심사 진행' : '다음 일정';
   }
 }
 
